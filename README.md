@@ -13,13 +13,14 @@
 | [**Contacts**](#contacts) 
 | [**Cite**](#cite)
 
-# Computing Machinery and Intelligence
+# Inferring Graph Signal for Network Science
 #### Author(s):
 Xingyu Wu, University of College London, Department of Electronic and Electrical Engineering
 #### Manuscript:
-https://academic.oup.com/mind/article-pdf/LIX/236/433/30123314/lix-236-433.pdf
+
+
 #### Abstract 
-_I propose to consider the question, “Can machines think?”♣ This should begin with definitions of the meaning of the terms “machine” and “think”. The definitions might be framed so as to reflect so far as possible the normal use of the words, but this attitude is dangerous. If the meaning of the words “machine” and “think” are to be found by examining how they are commonly used it is difficult to escape the conclusion that the meaning and the answer to the question, “Can machines think?” is to be sought in a statistical survey such as a Gallup poll._
+This project will work on a water leakage detection problem. Specifically, based on the BattLeDIM dataset [https://battledim.ucy.ac.cy/?page_id=33], where the readings of 33 pressure sensors (along with the readings of some other sensors) are provided to detect and localize leakages in a water distribution network. The aim of the project is to develop novel dynamic graph neural networks to exploit both spatial and temporal information to facilitate the detection of water leakages.
 
 ## Prerequisites
 Explain the prerequisites for the installation here, such as the OS, or whether the program requires a GPU.
@@ -45,10 +46,10 @@ python experiments/the-imitation-game.py
 
 ## Contacts
 Add your contact details here, included but not limited to your email, twitter, google scholar, GitHub.
-* alan@turing.ai
-* https://twitter.com/aturing
-* https://scholar.google.co.uk/citations?user=VWCHlwkAAAAJ&hl=en&oi=sra
-* https://github.com/aturing
+* zczlx79@ucl.ac.uk
+* 
+* 
+* https://github.com/wxy12151
 
 
 ## Cite
