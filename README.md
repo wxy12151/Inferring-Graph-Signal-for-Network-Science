@@ -15,7 +15,7 @@
 
 # Computing Machinery and Intelligence
 #### Author(s):
-Alan Turing, Victoria University of Manchester, Department of Mathematics
+Xingyu Wu, University of College London, Department of Electronic and Electrical Engineering
 #### Manuscript:
 https://academic.oup.com/mind/article-pdf/LIX/236/433/30123314/lix-236-433.pdf
 #### Abstract 
