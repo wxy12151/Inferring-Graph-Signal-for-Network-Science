@@ -137,13 +137,13 @@ for i in range((end - begin).days+1): # range(365)
     tmp_feature = []
     for node in G.nodes(): # 1-782
         tmp_feature.append(np.array(df_pressure.iloc[288*i : 288*(i+1), node-1].tolist()))
-    G.graph["feature"] = csr_matrix(tmp_feature)
-    graphs.append(G)
+    G.graph["feature"] = csr_matrix(tmp_feature) # need to copy G
+    graphs.append(G.copy())
 
 save_path = './data/graphs/graph.pkl'
-# with open(save_path, "wb") as f:
-#     pkl.dump(graphs, f)
-# print("Processed Data Saved at {}".format(save_path))
+with open(save_path, "wb") as f:
+    pkl.dump(graphs, f)
+print("Processed Data Saved at {}".format(save_path))
 
 
 
