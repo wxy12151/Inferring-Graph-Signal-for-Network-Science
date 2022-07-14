@@ -48,22 +48,22 @@ import pickle as pkl
 # --------------------------
 
 # Import a custom tool for converting EPANET .inp files to networkx graphs
-from utils.epanet_loader import get_nx_graph
+from utils_pre.epanet_loader import get_nx_graph
 
 # Function for visualisationa
-from utils.visualisation import visualise
+from utils_pre.visualisation import visualise
 
 # EPANET simulator, used to generate nodal pressures from the nominal model
-from utils.epanet_simulator import epanetSimulator
+from utils_pre.epanet_simulator import epanetSimulator
 
 # SCADA timeseries dataloader
-from utils.data_loader import battledimLoader, dataCleaner, dataGenerator
+from utils_pre.data_loader import battledimLoader, dataCleaner, dataGenerator
 
 # PyTorch early stopping callback
-from utils.early_stopping import EarlyStopping
+from utils_pre.early_stopping import EarlyStopping
 
 # Metrics
-from utils.metrics import Metrics
+from utils_pre.metrics import Metrics
 
 # --------------------------
 # NetworkX Graph Conversion
@@ -141,9 +141,9 @@ for i in range((end - begin).days+1): # range(365)
     graphs.append(G.copy())
 
 save_path = './data/graphs/graph.pkl'
-with open(save_path, "wb") as f:
-    pkl.dump(graphs, f)
-print("Processed Data Saved at {}".format(save_path))
+# with open(save_path, "wb") as f:
+#     pkl.dump(graphs, f)
+# print("Processed Data Saved at {}".format(save_path))
 
 
 

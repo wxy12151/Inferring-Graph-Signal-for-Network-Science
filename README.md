@@ -28,6 +28,7 @@ This is **not** a place to add python (or language) requirements, please see the
 An example is below:
 * Ubuntu Linux > 16.04
 * Anaconda python > 3.0.5
+* Pytorch 1.12.0 Linux CUDA 11.6
 
 ## Install guide
 Make sure that your environment is reproducible.
