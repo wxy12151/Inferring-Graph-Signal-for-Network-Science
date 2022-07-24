@@ -4,19 +4,24 @@ import dill
 import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
+import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from utils.utilities import run_random_walks_n2v
 
 np.random.seed(123)
 
-def load_graphs():
+def load_graphs(graphs_dir):
     """Load graph snapshots given the name of dataset"""
-    with open("./data/graphs/graph.pkl", "rb") as f:
+    with open(graphs_dir, "rb") as f:
         graphs = pkl.load(f)  # 16个时刻的图，节点，边的信息，节点的特征;
     print("Loaded {} graphs ".format(len(graphs)))
-    adjs = [nx.adjacency_matrix(g) for g in graphs]  # 每个图的邻接矩阵
+    adjs = [nx.adjacency_matrix(g) for g in graphs]  # 每个图的邻接矩阵, default "weight" as the edge data key used to provide each value in the matrix.
     return graphs, adjs
+
+def load_label(label_dir):
+    df_label = pd.read_csv(label_dir, sep=';', decimal=',')
+    return df_label
 
 def get_context_pairs(graphs, adjs):
     """ Load/generate context pairs for each snapshot through random walk sampling."""

@@ -65,12 +65,13 @@ def fixed_unigram_candidate_sampler(true_clasees,
 
 def to_device(batch, device):
     feed_dict = copy.deepcopy(batch)
-    node_1, node_2, node_2_negative, graphs = feed_dict.values()
+    pyg_graphs, labels = feed_dict.values()
+    labels = torch.tensor(labels)
     # to device
-    feed_dict["node_1"] = [x.to(device) for x in node_1]
-    feed_dict["node_2"] = [x.to(device) for x in node_2]
-    feed_dict["node_2_neg"] = [x.to(device) for x in node_2_negative]
-    feed_dict["graphs"] = [g.to(device) for g in graphs]
+    feed_dict["pyg_graphs"] = [g.to(device) for g in pyg_graphs] # list 365 x pyg_graph
+    feed_dict["labels"] = [x.to(device) for x in labels] # list_len 365 x torch.size([782]) 
+    # feed_dict["node_2_neg"] = [x.to(device) for x in node_2_negative]
+    # feed_dict["graphs"] = [g.to(device) for g in graphs]
 
     return feed_dict
 
