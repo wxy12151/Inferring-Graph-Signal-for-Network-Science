@@ -78,10 +78,10 @@ class DySAT(nn.Module):
 
         # 1: Structural Attention Layers
         structural_attention_layers = nn.Sequential()
-        for i in range(len(self.structural_layer_config)):  # 结构层信息 range(1)
-            layer = StructuralAttentionLayer(input_dim=input_dim,  # featurs; 143
-                                             output_dim=self.structural_layer_config[i],  # output维度 128
-                                             n_heads=self.structural_head_config[i],  # 多头参数 16
+        for i in range(len(self.structural_layer_config)):  # 结构层信息 range(1) [128] 每一个结构层传递一阶邻居
+            layer = StructuralAttentionLayer(input_dim=input_dim,  # featurs 288
+                                             output_dim=self.structural_layer_config[i],  # output维度 128 64 64
+                                             n_heads=self.structural_head_config[i],  # 多头参数 [16,8,8]-->16
                                              attn_drop=self.spatial_drop,  # drop参数 0.1
                                              ffd_drop=self.spatial_drop, # 0.1
                                              residual=self.args.residual) # 残差连接 True

@@ -59,7 +59,7 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
 # Architecture params
 parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,8,8',
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128',
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,64,64',
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -111,7 +111,7 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
                         drop_last=False # 是否扔掉len % batch_size
                         )
 
-model = DySAT(args, feats[0].shape[1], args.time_steps).to(device) # feats[0].shape: (18, 143)
+model = DySAT(args, feats[0].shape[1], args.time_steps).to(device) # feats[0].shape: (782, 288)
 opt = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
 ### Training Start

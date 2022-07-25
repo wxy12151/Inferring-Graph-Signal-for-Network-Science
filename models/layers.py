@@ -18,18 +18,18 @@ import copy
 
 class StructuralAttentionLayer(nn.Module):
     def __init__(self, 
-                input_dim, 
-                output_dim, 
-                n_heads, 
-                attn_drop, 
-                ffd_drop,
-                residual):
+                input_dim, # featurs 288
+                output_dim, # output维度 128 64 64
+                n_heads, # 多头参数 [16,8,8]-->16
+                attn_drop, # drop参数 0.1
+                ffd_drop, # 0.1
+                residual): # 残差连接 True
         super(StructuralAttentionLayer, self).__init__()
         self.out_dim = output_dim // n_heads  # 每个头特征的维度
         self.n_heads = n_heads
         self.act = nn.ELU()
 
-        self.lin = nn.Linear(input_dim, n_heads * self.out_dim, bias=False)  # 线性层[143, 128]; W*X
+        self.lin = nn.Linear(input_dim, n_heads * self.out_dim, bias=False)  # 线性层[288, 128]; W*X
         self.att_l = nn.Parameter(torch.Tensor(1, n_heads, self.out_dim))  # [1, 16, 8]; a1, attention
         self.att_r = nn.Parameter(torch.Tensor(1, n_heads, self.out_dim))  # [1, 16, 8]; a2, attention
         # att_l初始参数是否需要好的优化
@@ -43,7 +43,7 @@ class StructuralAttentionLayer(nn.Module):
 
         self.residual = residual  # 残差
         if self.residual:
-            self.lin_residual = nn.Linear(input_dim, n_heads * self.out_dim, bias=False)  # [143, 128]
+            self.lin_residual = nn.Linear(input_dim, n_heads * self.out_dim, bias=False)  # [288, 128 = 16*8]
 
     def reset_param(self,t):
         #Initialize based on the number of columns
@@ -51,51 +51,51 @@ class StructuralAttentionLayer(nn.Module):
         t.data.uniform_(-stdv,stdv)
 
     def forward(self, graph):
-        graph = copy.deepcopy(graph) # 注意这里是单时间戳的图
-        edge_index = graph.edge_index  # 点边关系 torch.Size([2, 66])
-        edge_weight = graph.edge_weight.reshape(-1, 1) # torch.Size([66, 1])
+        # graph = copy.deepcopy(graph) # 注意这里是单时间戳的图
+        edge_index = graph.edge_index  # 点边关系 torch.Size([2, 2592])
+        edge_weight = graph.edge_weight.reshape(-1, 1) # torch.Size([2592, 1])
         H, C = self.n_heads, self.out_dim # 获取多头信息和每个头特征的维度(128//16)： 16 8
 
         ### W * x
-        # self.lin: Linear(in_features=143, out_features=128, bias=False)
-        # graph.x.shape: torch.Size([18, 143])
-        # x.shape: torch.Size([18, 16, 8])
-        x = self.lin(graph.x).view(-1, H, C) # [N, heads, out_dim]; [18, 143]*[143, 128] => [18,128] => [18,16,8] # 多头attention
+        # self.lin: Linear(in_features=288, out_features=128, bias=False)
+        # graph.x.shape: torch.Size([782, 288])
+        # x.shape: torch.Size([782, 16, 8])
+        x = self.lin(graph.x).view(-1, H, C) # [N, heads, out_dim]; [782, 288]*[288, 128] => [782,128] => [782,16,8] # 多头attention
 
         ### attention
-        # x.shape: torch.Size([18, 16, 8])
+        # x.shape: torch.Size([782, 16, 8])
         # self.att_l.shape: torch.Size([1, 16, 8]) # 共享参数a
-        # (x * self.att_l).shape: torch.Size([18, 16, 8])
-        # ((x * self.att_l).sum(dim=-1)).shape: torch.Size([18, 16])
+        # (x * self.att_l).shape: torch.Size([782, 16, 8])
+        # ((x * self.att_l).sum(dim=-1)).shape: torch.Size([782, 16])
         # .squeeze: 把所有维度为“1”的压缩
-        ## 求得18个点的attention值
-        alpha_l = (x * self.att_l).sum(dim=-1).squeeze()  # [N, heads]; a1*X; [18, 16]: 18个节点，16个head，每个head的attention值
+        ## 求得782个点的attention值
+        alpha_l = (x * self.att_l).sum(dim=-1).squeeze()  # [N, heads]; a1*X; [782, 16]: 782个节点，16个head，每个head的attention值
         alpha_r = (x * self.att_r).sum(dim=-1).squeeze()  # a2*X
         ## 按src和dst列表的顺序分别调取它们的attention值
-        alpha_l = alpha_l[edge_index[0]] # [num_edges, heads] 66 x 16  每个src节点的attention值(16个heads)
+        alpha_l = alpha_l[edge_index[0]] # [num_edges, heads] 2592 x 16  每个src节点的attention值(16个heads)
         alpha_r = alpha_r[edge_index[1]]  # dst节点特征的attention的值
-        ## a^T * [W^s * x_u || W^s * x_v] 66对src和dst合并矩阵运算 --> alpha: 66 x 16
+        ## a^T * [W^s * x_u || W^s * x_v] 2592对src和dst合并矩阵运算 --> alpha: 2592 x 16
         alpha = alpha_r + alpha_l  # 将attention拼接在一起
         ## A_uv * (a^T * [W^s * x_u || W^s * x_v])
-        alpha = edge_weight * alpha
+        alpha = edge_weight * alpha # [2592, 1] * [2592, 16] -> [2592, 16]
         alpha = self.leaky_relu(alpha) # 经过激活函数
         ## 归一化求得alpha最终表达式
-        coefficients = softmax(alpha, edge_index[1]) # [num_edges, heads] 66 x 16; softmax归一化操作: 先按edge_index[1]进行分组，然后计算softmax值
+        coefficients = softmax(alpha, edge_index[1]) # [num_edges, heads] 2592 x 16; softmax归一化操作: 先按edge_index[1]进行分组，然后计算softmax值
 
         # dropout
         if self.training:
             coefficients = self.attn_drop(coefficients)
             x = self.ffd_drop(x)
-        x_j = x[edge_index[0]]  # [num_edges, heads, out_dim] 66 x 16 x 8 初始节点的特征
+        x_j = x[edge_index[0]]  # [num_edges, heads, out_dim] 2592 x 16 x 8 初始节点的特征
 
         # output; coefficients-每个边对应到的attention系数;
-        ## 18个点作为终止节点聚合邻居节点后的最终embedding
-        # [nodes, heads, dim] 18 x 16 x 8
+        ## 782个点作为终止节点聚合邻居节点后的最终embedding
+        # [nodes, heads, dim] 782 x 16 x 8
         out = self.act(scatter(x_j * coefficients[:, :, None], edge_index[1], dim=0, reduce="sum"))
-        out = out.reshape(-1, self.n_heads*self.out_dim) #[num_nodes, output_dim] 18 x 128
+        out = out.reshape(-1, self.n_heads*self.out_dim) #[num_nodes, output_dim] 728 x 128
         if self.residual:
-            out = out + self.lin_residual(graph.x)  # out加上残差，维度依旧为 18 x 128
-        graph.x = out  # 将计算attention后的节点特征赋予到图的节点特征上
+            out = out + self.lin_residual(graph.x)  # out加上残差，维度依旧为 728 x 128
+        graph.x = out  # 将计算attention后的节点特征赋予到图的节点特征上 728 x128
         return graph
 
         
