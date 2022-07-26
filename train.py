@@ -60,9 +60,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4',
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,8,8,4,4',
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32',
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,64,64,32,32',
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -84,8 +84,7 @@ feats = []
 for i in range(len(graphs)):
     feats.append(graphs[i].graph['feature'])
 
-time_steps =365
-assert time_steps <= len(adjs), "Time steps is illegal"
+assert args.time_steps <= len(adjs), "Time steps is illegal"
 
 # node2vec的训练语料; 在365个时间步的图都获得了每个节点对应的上下文节点(随机游走获得)
 # context_pairs_train = get_context_pairs(graphs, adjs)  # 365个图，每个图中进行随机游走采样;
