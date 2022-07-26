@@ -50,7 +50,7 @@ parser.add_argument('--residual', type=bool, nargs='?', default=True,
 # # Weight for negative samples in the binary cross-entropy loss function.
 # parser.add_argument('--neg_weight', type=float, nargs='?', default=1.0,
 #                     help='Weightage for negative samples')
-parser.add_argument('--learning_rate', type=float, nargs='?', default=0.01,
+parser.add_argument('--learning_rate', type=float, nargs='?', default=0.005, # default = 0.01
                     help='Initial learning rate for self-attention model.')
 parser.add_argument('--spatial_drop', type=float, nargs='?', default=0.1,
                     help='Spatial (structural) attention Dropout (1 - keep probability).')
@@ -60,9 +60,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,8,8,4,4',
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4',
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,64,64,32,32',
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32',
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
