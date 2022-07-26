@@ -12,6 +12,9 @@ import pandas as pd
 
 import torch
 from torch.utils.data import DataLoader
+import time
+
+from tensorboardX import SummaryWriter
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--time_steps', type=int, nargs='?', default=365,
@@ -57,9 +60,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,8,8',
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,8,8,4,4',
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,64,64',
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,64,64,32,32',
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -114,11 +117,16 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
 model = DySAT(args, feats[0].shape[1], args.time_steps).to(device) # feats[0].shape: (782, 288)
 opt = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
-### Training Start
+### Add tensorboard
+writer = SummaryWriter("logs")
 
+start_time = time.time()
+
+### Training Start
+best_epoch_loss = 50000
+epoch_loss = []
 for epoch in range(args.epochs):
     model.train()
-    epoch_loss = []
     for idx, feed_dict in enumerate(dataloader): # batch_size是512>365,所以会导入所有节点信息
         feed_dict = to_device(feed_dict, device)
         pyg_graphs, labels = feed_dict.values()
@@ -129,3 +137,19 @@ for epoch in range(args.epochs):
         loss.backward()
         opt.step()
         epoch_loss.append(loss.item())
+
+    end_time = time.time()
+    print("Training Times on epoch {}: {} seconds.".format(epoch + 1, end_time - start_time ))
+    print("Training Loss on epoch {}: {}".format(epoch + 1, loss.item()))
+    writer.add_scalar("train_loss", loss.item(), epoch + 1)
+    
+    if epoch_loss[-1] < best_epoch_loss:
+        best_epoch_loss = epoch_loss[-1]
+        torch.save(model.state_dict(), "./model_checkpoints/model.pt")
+
+    start_time = time.time()
+
+writer.close()
+    
+
+    
