@@ -23,7 +23,7 @@ parser.add_argument('--time_steps', type=int, nargs='?', default=365,
 # Experimental settings.
 # parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
 #                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=200,
+parser.add_argument('--epochs', type=int, nargs='?', default=1000,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
@@ -60,9 +60,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,8,8,4,4',
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4',
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,64,64,32,32',
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32',
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -125,6 +125,7 @@ start_time = time.time()
 ### Training Start
 best_epoch_loss = 50000
 epoch_loss = []
+epoch_save = 0
 for epoch in range(args.epochs):
     model.train()
     for idx, feed_dict in enumerate(dataloader): # batch_size是512>365,所以会导入所有节点信息
@@ -139,15 +140,19 @@ for epoch in range(args.epochs):
         epoch_loss.append(loss.item())
 
     end_time = time.time()
-    print("Training Times on epoch {}: {} seconds.".format(epoch + 1, end_time - start_time ))
+    print("Training Times on epoch {}: {} seconds.".format(epoch + 1, end_time - start_time))
     print("Training Loss on epoch {}: {}".format(epoch + 1, loss.item()))
     writer.add_scalar("train_loss", loss.item(), epoch + 1)
     
     if epoch_loss[-1] < best_epoch_loss:
         best_epoch_loss = epoch_loss[-1]
+        epoch_save = epoch + 1
         torch.save(model.state_dict(), "./model_checkpoints/model.pt")
+        print("Update local model on epoch {} with loss {}.".format(epoch_save, best_epoch_loss))
 
     start_time = time.time()
+
+print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, epoch_loss[epoch_save-1]))
 
 writer.close()
     
