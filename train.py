@@ -60,9 +60,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4',
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32',
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -107,7 +107,7 @@ return:
 
 dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所以会导入2018年所有图的信息
                         batch_size=args.batch_size, # default 512
-                        shuffle=True,
+                        shuffle=False,
                         num_workers=10, 
                         collate_fn=MyDataset.collate_fn, 
                         drop_last=False # 是否扔掉len % batch_size

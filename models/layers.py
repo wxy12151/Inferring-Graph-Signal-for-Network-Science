@@ -51,6 +51,7 @@ class StructuralAttentionLayer(nn.Module):
         t.data.uniform_(-stdv,stdv)
 
     def forward(self, graph):
+        # print(graph.x[0])
         # graph = copy.deepcopy(graph) # 注意这里是单时间戳的图
         edge_index = graph.edge_index  # 点边关系 torch.Size([2, 2592])
         edge_weight = graph.edge_weight.reshape(-1, 1) # torch.Size([2592, 1])
@@ -96,6 +97,7 @@ class StructuralAttentionLayer(nn.Module):
         if self.residual:
             out = out + self.lin_residual(graph.x)  # out加上残差，维度依旧为 728 x 128
         graph.x = out  # 将计算attention后的节点特征赋予到图的节点特征上 728 x128
+        # print(graph.x[0])
         return graph
 
         

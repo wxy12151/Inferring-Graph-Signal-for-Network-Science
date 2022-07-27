@@ -66,6 +66,12 @@ from utils_pre.early_stopping import EarlyStopping
 from utils_pre.metrics import Metrics
 
 # --------------------------
+# Customize Choice
+# --------------------------
+# year = 2018
+year = 2019
+
+# --------------------------
 # NetworkX Graph Conversion
 # --------------------------
 # Environment Paths
@@ -107,31 +113,41 @@ sensors = [int(string.replace("n", "")) for string in config['pressure_sensors']
 # Generate df_pressure dataframe for all nodes
 # --------------------------
 # Load the data into a numpy array with format matching the GraphConvWat problem
-pressure_2018 = battledimLoader(observed_nodes = sensors,
-                                n_nodes        = 782,
-                                path           = './data/',
-                                file           = '2018_SCADA_Pressures.csv')
+if year == 2018:
+    pressure = battledimLoader(observed_nodes = sensors,
+                                    n_nodes        = 782,
+                                    path           = './data/',
+                                    file           = '2018_SCADA_Pressures.csv')
+elif year == 2019:
+    pressure = battledimLoader(observed_nodes = sensors,
+                                    n_nodes        = 782,
+                                    path           = './data/',
+                                    file           = '2019_SCADA_Pressures.csv')
 
 # Print information and instructions about the imported data
-msg = "The imported sensor data has shape (i,n,d): {}".format(pressure_2018.shape)
+msg = "The imported sensor data has shape (i,n,d): {}".format(pressure.shape)
 
 print(msg + "\n" + len(msg)*"-" + "\n")
 print("Where: ")
-print("'i' is the number of observations: {}".format(pressure_2018.shape[0]))
-print("'n' is the number of nodes: {}".format(pressure_2018.shape[1]))
-print("'d' is a {}-dimensional vector consisting of the pressure value and a mask ".format(pressure_2018.shape[2]))
+print("'i' is the number of observations: {}".format(pressure.shape[0]))
+print("'n' is the number of nodes: {}".format(pressure.shape[1]))
+print("'d' is a {}-dimensional vector consisting of the pressure value and a mask ".format(pressure.shape[2]))
 print("The mask is set to '1' on observed nodes and '0' otherwise\n")
 
 print("\n" + len(msg)*"-" + "\n")
-df_pressure = pd.DataFrame(pressure_2018[:,:,0])
-df_pressure_origin = pd.read_csv('./data/2018_SCADA_Pressures.csv', sep=';', decimal=',')
+df_pressure = pd.DataFrame(pressure[:,:,0])
+df_pressure_origin = pd.read_csv('./data/{}_SCADA_Pressures.csv'.format(year), sep=';', decimal=',')
 df_pressure['datetime'] = df_pressure_origin['Timestamp']
 
 # --------------------------
-# Generate 365 graphs in 2018, add day-series pressure measurements as features
+# Generate 365 graphs in 2018/2019, add day-series pressure measurements as features
 # --------------------------
-begin = datetime.date(2018,1,1)
-end = datetime.date(2018,12,31)
+if year == 2018: 
+    begin = datetime.date(2018,1,1)
+    end = datetime.date(2018,12,31)
+elif year == 2019:
+    begin = datetime.date(2019,1,1)
+    end = datetime.date(2019,12,31)
 graphs = []
 for i in range((end - begin).days+1): # range(365)
     tmp_feature = []
@@ -140,10 +156,10 @@ for i in range((end - begin).days+1): # range(365)
     G.graph["feature"] = csr_matrix(tmp_feature) # need to copy G
     graphs.append(G.copy())
 
-save_path = './data/graphs/graph.pkl'
-# with open(save_path, "wb") as f:
-#     pkl.dump(graphs, f)
-# print("Processed Data Saved at {}".format(save_path))
+save_path = './data/graphs/graph_{}.pkl'.format(year)
+with open(save_path, "wb") as f:
+    pkl.dump(graphs, f)
+print("Processed Data Saved at {}".format(save_path))
 
 
 
