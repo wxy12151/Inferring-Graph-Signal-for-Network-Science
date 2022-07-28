@@ -60,9 +60,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -90,6 +90,7 @@ assert args.time_steps <= len(adjs), "Time steps is illegal"
 # context_pairs_train = get_context_pairs(graphs, adjs)  # 365个图，每个图中进行随机游走采样;
 
 # build dataloader and model
+torch.cuda.set_device(1)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 
@@ -139,6 +140,7 @@ for epoch in range(args.epochs):
         epoch_loss.append(loss.item())
 
     end_time = time.time()
+    print("-"*30)
     print("Training Times on epoch {}: {} seconds.".format(epoch + 1, end_time - start_time))
     print("Training Loss on epoch {}: {}".format(epoch + 1, loss.item()))
     writer.add_scalar("train_loss", loss.item(), epoch + 1)

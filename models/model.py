@@ -96,7 +96,8 @@ class DySAT(nn.Module):
                                              n_heads=self.structural_head_config[i],  # 多头参数 [16,8,8]-->16
                                              attn_drop=self.spatial_drop,  # drop参数 0.1
                                              ffd_drop=self.spatial_drop, # 0.1
-                                             residual=self.args.residual) # 残差连接 True
+                                             residual=self.args.residual, # 残差连接 True
+                                             layer_no = i+1) # the no. of the layer 
             structural_attention_layers.add_module(name="structural_layer_{}".format(i), module=layer)
             input_dim = self.structural_layer_config[i]  # 下一层input维度等于上一层的输出维度
         

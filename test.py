@@ -121,7 +121,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model_5.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model_2_1.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins
@@ -146,7 +146,7 @@ with torch.no_grad():
 print('The shape of the node scores: {}'.format(y_score_node.shape)) # torch.Size([285430, 2]) 365x782
 print('The shape of the node labels: {}'.format(targets.shape)) # torch.Size([285430])
     
-_, prediction = torch.max(F.softmax(y_score_node), 1)
+_, prediction = torch.max(F.softmax(y_score_node, dim = 1), 1)
 
 targets = targets.cpu().numpy()
 prediction = prediction.cpu().numpy()

@@ -23,7 +23,8 @@ class StructuralAttentionLayer(nn.Module):
                 n_heads, # 多头参数 [16,8,8]-->16
                 attn_drop, # drop参数 0.1
                 ffd_drop, # 0.1
-                residual): # 残差连接 True
+                residual,
+                layer_no): # 残差连接 True
         super(StructuralAttentionLayer, self).__init__()
         self.out_dim = output_dim // n_heads  # 每个头特征的维度
         self.n_heads = n_heads
@@ -44,6 +45,8 @@ class StructuralAttentionLayer(nn.Module):
         self.residual = residual  # 残差
         if self.residual:
             self.lin_residual = nn.Linear(input_dim, n_heads * self.out_dim, bias=False)  # [288, 128 = 16*8]
+        
+        self.layer_no = layer_no
 
     def reset_param(self,t):
         #Initialize based on the number of columns
@@ -52,7 +55,8 @@ class StructuralAttentionLayer(nn.Module):
 
     def forward(self, graph):
         # print(graph.x[0])
-        # graph = copy.deepcopy(graph) # 注意这里是单时间戳的图
+        if self.layer_no == 1:
+            graph = copy.deepcopy(graph) # 注意这里是单时间戳的图
         edge_index = graph.edge_index  # 点边关系 torch.Size([2, 2592])
         edge_weight = graph.edge_weight.reshape(-1, 1) # torch.Size([2592, 1])
         H, C = self.n_heads, self.out_dim # 获取多头信息和每个头特征的维度(128//16)： 16 8
