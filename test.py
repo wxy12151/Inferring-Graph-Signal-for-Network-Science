@@ -3,6 +3,7 @@
 # --------------------------
 import torch
 from torch.utils.data import DataLoader
+import torch.nn.functional as F
 import time
 import argparse
 import numpy as np
@@ -11,6 +12,8 @@ import networkx as nx
 import scipy.sparse as sp
 from sklearn.model_selection import train_test_split
 import pandas as pd
+from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc, precision_score, recall_score, \
+    f1_score, roc_auc_score
 
 # --------------------------
 # Importing custom libraries
@@ -66,9 +69,9 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -99,6 +102,9 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 dataset = MyDataset(args, graphs, feats, adjs, df_label)
 
+test_data_size = len(dataset)
+print("The length of testing set is：{}".format(test_data_size)) # 365天的图
+
 dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所以会导入2018年所有图的信息
                         batch_size=args.batch_size, # default 512
                         shuffle=False,
@@ -107,21 +113,52 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
                         drop_last=False # 是否扔掉len % batch_size
                         )
 
-# 导入模型结构
-model = DySAT(args, feats[0].shape[1], args.time_steps).to(device) 
+#----------------------------------------------------------------#
+# Define Model Structure
+#----------------------------------------------------------------#
+model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 
-# 导入模型参数
-model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
+#----------------------------------------------------------------#
+# Import Trained Model's Parameters
+#----------------------------------------------------------------#
+model.load_state_dict(torch.load("./model_checkpoints/model_5.pt"))
+
+#----------------------------------------------------------------#
+# The testing step begins
+#----------------------------------------------------------------#
 model.eval()
-emb = model(feed_dict["graphs"])[:, -2, :].detach().cpu().numpy()
-val_results, test_results, _, _ = evaluate_classifier(train_edges_pos,
-                                                    train_edges_neg,
-                                                    val_edges_pos, 
-                                                    val_edges_neg, 
-                                                    test_edges_pos,
-                                                    test_edges_neg, 
-                                                    emb, 
-                                                    emb)
-auc_val = val_results["HAD"][1]
-auc_test = test_results["HAD"][1]
-print("Best Test AUC = {:.3f}".format(auc_test))
+# total_test_loss = 0
+total_accuracy = 0
+### no grad optimation
+with torch.no_grad():
+    for idx, feed_dict in enumerate(dataloader): # batch_size是512>365,所以会导入所有节点信息
+        feed_dict = to_device(feed_dict, device)
+        pyg_graphs, labels = feed_dict.values()
+        y_scores = model(pyg_graphs) # list 365 torch.size([782, 2])
+
+        y_score_node = torch.tensor(()).to(device)
+        targets = torch.tensor(()).to(device)
+        
+        for t in range(len(y_scores)): # 遍历每一个时间步骤
+            y_score_node = torch.cat((y_score_node, y_scores[t]), 0)
+            targets = torch.cat((targets, labels[t].long()))
+        
+print('The shape of the node scores: {}'.format(y_score_node.shape)) # torch.Size([285430, 2]) 365x782
+print('The shape of the node labels: {}'.format(targets.shape)) # torch.Size([285430])
+    
+_, prediction = torch.max(F.softmax(y_score_node), 1)
+
+targets = targets.cpu().numpy()
+prediction = prediction.cpu().numpy()
+
+accuracy_count = (prediction == targets).sum()
+test_data_size = test_data_size*782 # 782 nodes per day
+print("Accuracy:{}".format(accuracy_count/test_data_size))
+print('micro_precision:{}'.format(precision_score(targets, prediction, average='micro')))
+print('micro_recall:{}'.format(recall_score(targets, prediction, average='micro')))
+print('micro_f1-score:{}'.format(f1_score(targets, prediction, average='micro')))
+print("Confusion Matrix: ",'\n', confusion_matrix(targets, prediction))
+print("Classification report: ",'\n', classification_report(targets, prediction))
+        
+
+
