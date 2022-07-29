@@ -69,13 +69,13 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
-parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
+parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8',
                     help='Encoder layer config: # attention heads in each Temporal layer')
-parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='128',
+parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='64,64,64,64,64',
                     help='Encoder layer config: # units in each Temporal layer')
 parser.add_argument('--position_ffn', type=str, nargs='?', default='True',
                     help='Position wise feedforward')
@@ -121,7 +121,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model_2_1.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins
