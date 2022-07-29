@@ -41,7 +41,7 @@ class DySAT(nn.Module):
 
         # 定义model
         self.structural_attn, self.temporal_attn = self.build_model()
-        self.fc = nn.Linear(self.structural_layer_config[-1], 2)
+        self.fc = nn.Linear(self.temporal_layer_config[-1], 2)
 
         self.bceloss = BCEWithLogitsLoss()  # 定义loss函数; sigmoid和crossentropy组合在一起
 

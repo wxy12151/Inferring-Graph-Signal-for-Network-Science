@@ -139,7 +139,7 @@ class TemporalAttentionLayer(nn.Module):
         position_inputs = torch.arange(0,self.num_time_steps).reshape(1, -1).repeat(inputs.shape[0], 1).long().to(inputs.device)
         # self.position_embeddings: torch.Size([16, 128])
         # self.position_embeddings[position_inputs]: torch.Size([143, 16, 128])
-        temporal_inputs = inputs + self.position_embeddings[position_inputs] # [N, T, F]; 每个节点在各个时刻对应到的128维向量
+        temporal_inputs = inputs + self.position_embeddings[position_inputs] # [N, T, F] [782, 365, F]; 每个节点在各个时刻对应到的128维向量
         # !!! 以三层structural attention 为例，inputs[349, 0, :]为全0特征，加上position_embedding后temporal_inputs[349, 0, :]有特征了=self.position_embeddings[position_inputs][349, 0, :]
 
         # 2: Query, Key based multi-head self attention. [143, 16, 128]

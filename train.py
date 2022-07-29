@@ -23,7 +23,7 @@ parser.add_argument('--time_steps', type=int, nargs='?', default=365,
 # Experimental settings.
 # parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
 #                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=1000,
+parser.add_argument('--epochs', type=int, nargs='?', default=2000,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
@@ -60,13 +60,13 @@ parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
 
 # Architecture params
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,4', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,32', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
-parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16',
+parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8', # default = 16
                     help='Encoder layer config: # attention heads in each Temporal layer')
-parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='128',
+parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='64,64,64,64,64', # default = 128
                     help='Encoder layer config: # units in each Temporal layer')
 parser.add_argument('--position_ffn', type=str, nargs='?', default='True',
                     help='Position wise feedforward')
@@ -90,7 +90,7 @@ assert args.time_steps <= len(adjs), "Time steps is illegal"
 # context_pairs_train = get_context_pairs(graphs, adjs)  # 365个图，每个图中进行随机游走采样;
 
 # build dataloader and model
-torch.cuda.set_device(1)
+torch.cuda.set_device(0)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 
