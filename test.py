@@ -98,6 +98,7 @@ feats = []
 for i in range(len(graphs)):
     feats.append(graphs[i].graph['feature'])
 
+torch.cuda.set_device(1)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 dataset = MyDataset(args, graphs, feats, adjs, df_label)
