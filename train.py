@@ -1,3 +1,4 @@
+import os
 import argparse
 import numpy as np
 import pickle as pkl
@@ -16,14 +17,15 @@ import time
 
 from tensorboardX import SummaryWriter
 
+# --------------------------
+# Experimental settings
+# --------------------------
 parser = argparse.ArgumentParser()
 parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
-
-# Experimental settings.
-# parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
-#                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=2000,
+parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
+                    help='GPU_ID (0/1 etc.)')
+parser.add_argument('--epochs', type=int, nargs='?', default=1000,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
@@ -36,8 +38,9 @@ parser.add_argument('--batch_size', type=int, nargs='?', default=512,
 # parser.add_argument("--early_stop", type=int, default=10,
                     # help="patient")
 
-# 1-hot encoding is input as a sparse matrix - hence no scalability issue for large datasets.
-# Tunable hyper-params
+# --------------------------
+# Tunable Hyper-params
+# --------------------------
 # TODO: Implementation has not been verified, performance may not be good.
 parser.add_argument('--residual', type=bool, nargs='?', default=True,
                     help='Use residual')
@@ -58,8 +61,12 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=55,
+                    help='Give leakage labels more weight when getting loss since the biased lables.')
 
+# --------------------------
 # Architecture params
+# --------------------------
 parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
 parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,64', # 128,128,64,64,64,64,32,32,32,32,32
@@ -73,27 +80,34 @@ parser.add_argument('--position_ffn', type=str, nargs='?', default='True',
 parser.add_argument('--window', type=int, nargs='?', default=-1,
                     help='Window for temporal attention (default : -1 => full)')
 args = parser.parse_args()
-print(args)
+# print(args)
 
+# --------------------------
+# Activate GPU and cuda
+# --------------------------
+torch.cuda.set_device(args.GPU_ID)
+device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
+
+# --------------------------
+# load graphs and labels
+# --------------------------
 graphs_dir = "./data/graphs/graph.pkl"
 graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
 label_dir = './data/2018_Leakages.csv'
 df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
+# --------------------------
+# Extract nodal features
+# --------------------------
 feats = []
 for i in range(len(graphs)):
     feats.append(graphs[i].graph['feature'])
 
 assert args.time_steps <= len(adjs), "Time steps is illegal"
 
-# node2vec的训练语料; 在365个时间步的图都获得了每个节点对应的上下文节点(随机游走获得)
-# context_pairs_train = get_context_pairs(graphs, adjs)  # 365个图，每个图中进行随机游走采样;
-
-# build dataloader and model
-torch.cuda.set_device(0)
-device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
-
-
+# --------------------------
+# Import the dataset
+# --------------------------
 dataset = MyDataset(args, graphs, feats, adjs, df_label)
 ''' 
 return:
@@ -106,6 +120,9 @@ return:
     self.label: matrix[365 782]--> node is healthy or node in a certrain day 
 '''
 
+# --------------------------
+# Load the dataset
+# --------------------------
 dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所以会导入2018年所有图的信息
                         batch_size=args.batch_size, # default 512
                         shuffle=False,
@@ -114,18 +131,41 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
                         drop_last=False # 是否扔掉len % batch_size
                         )
 
+# --------------------------
+# Define Model and Optimization Strategy
+# --------------------------
 model = DySAT(args, feats[0].shape[1], args.time_steps).to(device) # feats[0].shape: (782, 288)
 opt = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=args.weight_decay)
 
-### Add tensorboard
+# --------------------------
+# Add tensorboard
+# --------------------------
 writer = SummaryWriter("logs")
 
-start_time = time.time()
+# --------------------------
+# Print to txt file locally
+# --------------------------
+file_path = './test_logs.txt'
+f=open(file_path, 'a')
+print('*'*80, file = f)
+print('learning rate:', args.learning_rate, file = f)
+print('epochs:', args.epochs, file = f)
+print('structural head config:', args.structural_head_config, file = f)
+print('structural layer config:', args.structural_layer_config, file = f)
+print('temporal head config:', args.temporal_head_config, file = f)
+print('temporal layer config:', args.temporal_layer_config, file = f)
+print('leakage weight for getting loss:', args.leakage_weight, file = f)
+f.close()
 
-### Training Start
+# --------------------------
+# Training Start
+# --------------------------
+start_time = time.time()
 best_epoch_loss = 50000
+every_n_epoch = 1
 epoch_loss = []
 epoch_save = 0
+os.environ['MKL_THREADING_LAYER'] = 'GNU'
 for epoch in range(args.epochs):
     model.train()
     for idx, feed_dict in enumerate(dataloader): # batch_size是512>365,所以会导入所有节点信息
@@ -145,15 +185,31 @@ for epoch in range(args.epochs):
     print("Training Loss on epoch {}: {}".format(epoch + 1, loss.item()))
     writer.add_scalar("train_loss", loss.item(), epoch + 1)
     
+    # Update the model with the lowest loss
     if epoch_loss[-1] < best_epoch_loss:
         best_epoch_loss = epoch_loss[-1]
         epoch_save = epoch + 1
         torch.save(model.state_dict(), "./model_checkpoints/model.pt")
         print("Update local model on epoch {} with loss {}.".format(epoch_save, best_epoch_loss))
+    
+    # Test the saved model every n epochs
+    if (epoch+1) % every_n_epoch == 0:
+        file_path = './test_logs.txt'
+        f=open(file_path, 'a')
+        print('\n', file = f)
+        print('-'*50, file = f)
+        print('The epoch now is:', epoch+1, file = f)
+        print('The tested model now is on epoch {} with loss {}'.format(epoch_save, best_epoch_loss), file = f)
+        print('HERE IS THE TEST RESULTS:', file = f)
+        f.close()
+        os.system("python test.py")
 
     start_time = time.time()
-
-print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, epoch_loss[epoch_save-1]))
+    
+file_path = './test_logs.txt'
+f=open(file_path, 'a')
+print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, epoch_loss[epoch_save-1]), file = f)
+f.close()
 
 writer.close()
     

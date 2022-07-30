@@ -1,0 +1,64 @@
+********************************************************************************
+learning rate: 0.0005
+epochs: 1000
+structural head config: 16,16,8,8,8,8,4,4,4,4,8
+structural layer config: 128,128,64,64,64,64,32,32,32,32,64
+temporal head config: 8,8,8,8,8
+temporal layer config: 64,64,64,64,64
+leakage weight for getting loss: 55
+
+
+--------------------------------------------------
+The epoch now is: 1
+The tested model now is on epoch 1 with loss 237.63233947753906
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.9741057352065305
+micro_precision:0.9741057352065305
+micro_recall:0.9741057352065305
+micro_f1-score:0.9741057352065305
+Confusion Matrix:  
+ [[278039      0]
+ [  7391      0]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.97      1.00      0.99    278039
+         1.0       0.00      0.00      0.00      7391
+
+    accuracy                           0.97    285430
+   macro avg       0.49      0.50      0.49    285430
+weighted avg       0.95      0.97      0.96    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 2
+The tested model now is on epoch 2 with loss 229.00027465820312
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.9741057352065305
+micro_precision:0.9741057352065305
+micro_recall:0.9741057352065305
+micro_f1-score:0.9741057352065305
+Confusion Matrix:  
+ [[278039      0]
+ [  7391      0]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.97      1.00      0.99    278039
+         1.0       0.00      0.00      0.00      7391
+
+    accuracy                           0.97    285430
+   macro avg       0.49      0.50      0.49    285430
+weighted avg       0.95      0.97      0.96    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 3
+The tested model now is on epoch 3 with loss 227.67977905273438
+HERE IS THE TEST RESULTS:

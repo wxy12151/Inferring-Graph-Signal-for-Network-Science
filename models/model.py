@@ -46,7 +46,7 @@ class DySAT(nn.Module):
         self.bceloss = BCEWithLogitsLoss()  # 定义loss函数; sigmoid和crossentropy组合在一起
 
         # 标签类别为0, 1，所对应的样本数量为768，14; 对应权重为768/768, 768/14
-        self.weights = [1, 55]
+        self.weights = [1, args.leakage_weight] # default [1, 55]
         self.class_weights = torch.FloatTensor(self.weights)
         self.cirterion = nn.CrossEntropyLoss(weight = self.class_weights) # 定义loss函数; 
 

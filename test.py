@@ -23,15 +23,21 @@ from utils.minibatch import  MyDataset
 from utils.utilities import to_device
 from models.model import DySAT
 
-#----------------------------------------------------------------#
-# Parameters Setting
-#----------------------------------------------------------------#
+# --------------------------
+# Print to txt file locally
+# --------------------------
+file_path = './test_logs.txt'
+f=open(file_path, 'a')
+print('-'*50, file = f)
+
+# --------------------------
+# Experimental settings
+# --------------------------
 parser = argparse.ArgumentParser()
 parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
-# Experimental settings.
-# parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
-#                     help='GPU_ID (0/1 etc.)')
+parser.add_argument('--GPU_ID', type=int, nargs='?', default=1,
+                    help='GPU_ID (0/1 etc.)')
 parser.add_argument('--epochs', type=int, nargs='?', default=1000,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
@@ -45,8 +51,9 @@ parser.add_argument('--batch_size', type=int, nargs='?', default=512,
 # parser.add_argument("--early_stop", type=int, default=10,
                     # help="patient")
 
-# 1-hot encoding is input as a sparse matrix - hence no scalability issue for large datasets.
-# Tunable hyper-params
+# --------------------------
+# Tunable Hyper-params
+# --------------------------
 # TODO: Implementation has not been verified, performance may not be good.
 parser.add_argument('--residual', type=bool, nargs='?', default=True,
                     help='Use residual')
@@ -59,7 +66,7 @@ parser.add_argument('--residual', type=bool, nargs='?', default=True,
 # # Weight for negative samples in the binary cross-entropy loss function.
 # parser.add_argument('--neg_weight', type=float, nargs='?', default=1.0,
 #                     help='Weightage for negative samples')
-parser.add_argument('--learning_rate', type=float, nargs='?', default=0.001, # default = 0.01
+parser.add_argument('--learning_rate', type=float, nargs='?', default=0.0005, # default = 0.01
                     help='Initial learning rate for self-attention model.')
 parser.add_argument('--spatial_drop', type=float, nargs='?', default=0.1,
                     help='Spatial (structural) attention Dropout (1 - keep probability).')
@@ -67,15 +74,19 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=55,
+                    help='Give leakage labels more weight when getting loss since the biased lables.')
 
+# --------------------------
 # Architecture params
+# --------------------------
 parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
 parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
-parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8',
+parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8', # default = 16
                     help='Encoder layer config: # attention heads in each Temporal layer')
-parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='64,64,64,64,64',
+parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='64,64,64,64,64', # default = 128
                     help='Encoder layer config: # units in each Temporal layer')
 parser.add_argument('--position_ffn', type=str, nargs='?', default='True',
                     help='Position wise feedforward')
@@ -98,13 +109,13 @@ feats = []
 for i in range(len(graphs)):
     feats.append(graphs[i].graph['feature'])
 
-torch.cuda.set_device(1)
+torch.cuda.set_device(args.GPU_ID)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 dataset = MyDataset(args, graphs, feats, adjs, df_label)
 
 test_data_size = len(dataset)
-print("The length of testing set is：{}".format(test_data_size)) # 365天的图
+print("The length of testing set is：{}".format(test_data_size), file = f) # 365天的图
 
 dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所以会导入2018年所有图的信息
                         batch_size=args.batch_size, # default 512
@@ -154,12 +165,14 @@ prediction = prediction.cpu().numpy()
 
 accuracy_count = (prediction == targets).sum()
 test_data_size = test_data_size*782 # 782 nodes per day
-print("Accuracy:{}".format(accuracy_count/test_data_size))
-print('micro_precision:{}'.format(precision_score(targets, prediction, average='micro')))
-print('micro_recall:{}'.format(recall_score(targets, prediction, average='micro')))
-print('micro_f1-score:{}'.format(f1_score(targets, prediction, average='micro')))
-print("Confusion Matrix: ",'\n', confusion_matrix(targets, prediction))
-print("Classification report: ",'\n', classification_report(targets, prediction))
+print("Accuracy:{}".format(accuracy_count/test_data_size), file = f)
+print('micro_precision:{}'.format(precision_score(targets, prediction, average='micro')), file = f)
+print('micro_recall:{}'.format(recall_score(targets, prediction, average='micro')), file = f)
+print('micro_f1-score:{}'.format(f1_score(targets, prediction, average='micro')), file = f)
+print("Confusion Matrix: ", '\n', confusion_matrix(targets, prediction), file = f)
+print("Classification report: ", '\n', classification_report(targets, prediction), file = f)
+
+f.close()
         
 
 
