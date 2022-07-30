@@ -1,64 +1,509 @@
 ********************************************************************************
-learning rate: 0.0005
-epochs: 1000
+learning rate: 0.0002
+epochs: 2000
 structural head config: 16,16,8,8,8,8,4,4,4,4,8
 structural layer config: 128,128,64,64,64,64,32,32,32,32,64
 temporal head config: 8,8,8,8,8
 temporal layer config: 64,64,64,64,64
-leakage weight for getting loss: 55
+leakage weight for getting loss: 100
 
 
 --------------------------------------------------
-The epoch now is: 1
-The tested model now is on epoch 1 with loss 237.63233947753906
+The epoch now is: 100
+The tested model now is on epoch 84 with loss 212.6283416748047
 HERE IS THE TEST RESULTS:
 --------------------------------------------------
 The length of testing set is：365
-Accuracy:0.9741057352065305
-micro_precision:0.9741057352065305
-micro_recall:0.9741057352065305
-micro_f1-score:0.9741057352065305
+Accuracy:0.507465928598956
+micro_precision:0.507465928598956
+micro_recall:0.507465928598956
+micro_f1-score:0.507465928598956
 Confusion Matrix:  
- [[278039      0]
- [  7391      0]]
+ [[140069 137970]
+ [  2614   4777]]
 Classification report:  
                precision    recall  f1-score   support
 
-         0.0       0.97      1.00      0.99    278039
-         1.0       0.00      0.00      0.00      7391
+         0.0       0.98      0.50      0.67    278039
+         1.0       0.03      0.65      0.06      7391
 
-    accuracy                           0.97    285430
-   macro avg       0.49      0.50      0.49    285430
-weighted avg       0.95      0.97      0.96    285430
+    accuracy                           0.51    285430
+   macro avg       0.51      0.58      0.36    285430
+weighted avg       0.96      0.51      0.65    285430
 
 
 
 --------------------------------------------------
-The epoch now is: 2
-The tested model now is on epoch 2 with loss 229.00027465820312
+The epoch now is: 200
+The tested model now is on epoch 197 with loss 198.89230346679688
 HERE IS THE TEST RESULTS:
 --------------------------------------------------
 The length of testing set is：365
-Accuracy:0.9741057352065305
-micro_precision:0.9741057352065305
-micro_recall:0.9741057352065305
-micro_f1-score:0.9741057352065305
+Accuracy:0.6981746838103914
+micro_precision:0.6981746838103914
+micro_recall:0.6981746838103914
+micro_f1-score:0.6981746838103914
 Confusion Matrix:  
- [[278039      0]
- [  7391      0]]
+ [[196040  81999]
+ [  4151   3240]]
 Classification report:  
                precision    recall  f1-score   support
 
-         0.0       0.97      1.00      0.99    278039
-         1.0       0.00      0.00      0.00      7391
+         0.0       0.98      0.71      0.82    278039
+         1.0       0.04      0.44      0.07      7391
 
-    accuracy                           0.97    285430
-   macro avg       0.49      0.50      0.49    285430
-weighted avg       0.95      0.97      0.96    285430
+    accuracy                           0.70    285430
+   macro avg       0.51      0.57      0.44    285430
+weighted avg       0.95      0.70      0.80    285430
 
 
 
 --------------------------------------------------
-The epoch now is: 3
-The tested model now is on epoch 3 with loss 227.67977905273438
+The epoch now is: 300
+The tested model now is on epoch 299 with loss 150.0744171142578
 HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.7964579756858073
+micro_precision:0.7964579756858073
+micro_recall:0.7964579756858073
+micro_f1-score:0.7964579756858073
+Confusion Matrix:  
+ [[223693  54346]
+ [  3751   3640]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.80      0.89    278039
+         1.0       0.06      0.49      0.11      7391
+
+    accuracy                           0.80    285430
+   macro avg       0.52      0.65      0.50    285430
+weighted avg       0.96      0.80      0.87    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 400
+The tested model now is on epoch 395 with loss 133.72525024414062
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8057106821287181
+micro_precision:0.8057106821287181
+micro_recall:0.8057106821287181
+micro_f1-score:0.805710682128718
+Confusion Matrix:  
+ [[226427  51612]
+ [  3844   3547]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.81      0.89    278039
+         1.0       0.06      0.48      0.11      7391
+
+    accuracy                           0.81    285430
+   macro avg       0.52      0.65      0.50    285430
+weighted avg       0.96      0.81      0.87    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 500
+The tested model now is on epoch 470 with loss 123.72622680664062
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8471043688470028
+micro_precision:0.8471043688470028
+micro_recall:0.8471043688470028
+micro_f1-score:0.8471043688470028
+Confusion Matrix:  
+ [[238393  39646]
+ [  3995   3396]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.86      0.92    278039
+         1.0       0.08      0.46      0.13      7391
+
+    accuracy                           0.85    285430
+   macro avg       0.53      0.66      0.53    285430
+weighted avg       0.96      0.85      0.90    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 600
+The tested model now is on epoch 568 with loss 119.49095916748047
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8504572049188943
+micro_precision:0.8504572049188943
+micro_recall:0.8504572049188943
+micro_f1-score:0.8504572049188943
+Confusion Matrix:  
+ [[239381  38658]
+ [  4026   3365]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.86      0.92    278039
+         1.0       0.08      0.46      0.14      7391
+
+    accuracy                           0.85    285430
+   macro avg       0.53      0.66      0.53    285430
+weighted avg       0.96      0.85      0.90    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 700
+The tested model now is on epoch 664 with loss 117.0101547241211
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8420488385944014
+micro_precision:0.8420488385944014
+micro_recall:0.8420488385944014
+micro_f1-score:0.8420488385944014
+Confusion Matrix:  
+ [[236994  41045]
+ [  4039   3352]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.85      0.91    278039
+         1.0       0.08      0.45      0.13      7391
+
+    accuracy                           0.84    285430
+   macro avg       0.53      0.65      0.52    285430
+weighted avg       0.96      0.84      0.89    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 800
+The tested model now is on epoch 720 with loss 112.5245590209961
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8628945801072067
+micro_precision:0.8628945801072067
+micro_recall:0.8628945801072067
+micro_f1-score:0.8628945801072067
+Confusion Matrix:  
+ [[242959  35080]
+ [  4054   3337]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.87      0.93    278039
+         1.0       0.09      0.45      0.15      7391
+
+    accuracy                           0.86    285430
+   macro avg       0.54      0.66      0.54    285430
+weighted avg       0.96      0.86      0.91    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 900
+The tested model now is on epoch 880 with loss 107.37430572509766
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8671548190449497
+micro_precision:0.8671548190449497
+micro_recall:0.8671548190449497
+micro_f1-score:0.8671548190449497
+Confusion Matrix:  
+ [[244184  33855]
+ [  4063   3328]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.88      0.93    278039
+         1.0       0.09      0.45      0.15      7391
+
+    accuracy                           0.87    285430
+   macro avg       0.54      0.66      0.54    285430
+weighted avg       0.96      0.87      0.91    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1000
+The tested model now is on epoch 979 with loss 103.33058166503906
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8448376134253582
+micro_precision:0.8448376134253582
+micro_recall:0.8448376134253582
+micro_f1-score:0.8448376134253582
+Confusion Matrix:  
+ [[237719  40320]
+ [  3968   3423]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.85      0.91    278039
+         1.0       0.08      0.46      0.13      7391
+
+    accuracy                           0.84    285430
+   macro avg       0.53      0.66      0.52    285430
+weighted avg       0.96      0.84      0.89    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1100
+The tested model now is on epoch 1088 with loss 98.19537353515625
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.7954314542970256
+micro_precision:0.7954314542970256
+micro_recall:0.7954314542970256
+micro_f1-score:0.7954314542970256
+Confusion Matrix:  
+ [[223380  54659]
+ [  3731   3660]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.80      0.88    278039
+         1.0       0.06      0.50      0.11      7391
+
+    accuracy                           0.80    285430
+   macro avg       0.52      0.65      0.50    285430
+weighted avg       0.96      0.80      0.86    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1200
+The tested model now is on epoch 1101 with loss 96.64752960205078
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8898504011491434
+micro_precision:0.8898504011491434
+micro_recall:0.8898504011491434
+micro_f1-score:0.8898504011491434
+Confusion Matrix:  
+ [[250853  27186]
+ [  4254   3137]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.90      0.94    278039
+         1.0       0.10      0.42      0.17      7391
+
+    accuracy                           0.89    285430
+   macro avg       0.54      0.66      0.55    285430
+weighted avg       0.96      0.89      0.92    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1300
+The tested model now is on epoch 1271 with loss 92.75813293457031
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.80091090635182
+micro_precision:0.80091090635182
+micro_recall:0.80091090635182
+micro_f1-score:0.80091090635182
+Confusion Matrix:  
+ [[225041  52998]
+ [  3828   3563]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.81      0.89    278039
+         1.0       0.06      0.48      0.11      7391
+
+    accuracy                           0.80    285430
+   macro avg       0.52      0.65      0.50    285430
+weighted avg       0.96      0.80      0.87    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1400
+The tested model now is on epoch 1271 with loss 92.75813293457031
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.80091090635182
+micro_precision:0.80091090635182
+micro_recall:0.80091090635182
+micro_f1-score:0.80091090635182
+Confusion Matrix:  
+ [[225041  52998]
+ [  3828   3563]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.81      0.89    278039
+         1.0       0.06      0.48      0.11      7391
+
+    accuracy                           0.80    285430
+   macro avg       0.52      0.65      0.50    285430
+weighted avg       0.96      0.80      0.87    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1500
+The tested model now is on epoch 1493 with loss 89.03901672363281
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8819745646918684
+micro_precision:0.8819745646918684
+micro_recall:0.8819745646918684
+micro_f1-score:0.8819745646918684
+Confusion Matrix:  
+ [[248652  29387]
+ [  4301   3090]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.89      0.94    278039
+         1.0       0.10      0.42      0.16      7391
+
+    accuracy                           0.88    285430
+   macro avg       0.54      0.66      0.55    285430
+weighted avg       0.96      0.88      0.92    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1600
+The tested model now is on epoch 1567 with loss 87.97950744628906
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8976141260554251
+micro_precision:0.8976141260554251
+micro_recall:0.8976141260554251
+micro_f1-score:0.8976141260554251
+Confusion Matrix:  
+ [[253132  24907]
+ [  4317   3074]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.91      0.95    278039
+         1.0       0.11      0.42      0.17      7391
+
+    accuracy                           0.90    285430
+   macro avg       0.55      0.66      0.56    285430
+weighted avg       0.96      0.90      0.93    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1700
+The tested model now is on epoch 1680 with loss 84.42269897460938
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8901481974564692
+micro_precision:0.8901481974564692
+micro_recall:0.8901481974564692
+micro_f1-score:0.8901481974564692
+Confusion Matrix:  
+ [[251037  27002]
+ [  4353   3038]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.90      0.94    278039
+         1.0       0.10      0.41      0.16      7391
+
+    accuracy                           0.89    285430
+   macro avg       0.54      0.66      0.55    285430
+weighted avg       0.96      0.89      0.92    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1800
+The tested model now is on epoch 1771 with loss 82.62326049804688
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.9083733314648075
+micro_precision:0.9083733314648075
+micro_recall:0.9083733314648075
+micro_f1-score:0.9083733314648075
+Confusion Matrix:  
+ [[256365  21674]
+ [  4479   2912]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.92      0.95    278039
+         1.0       0.12      0.39      0.18      7391
+
+    accuracy                           0.91    285430
+   macro avg       0.55      0.66      0.57    285430
+weighted avg       0.96      0.91      0.93    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 1900
+The tested model now is on epoch 1888 with loss 78.52909851074219
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8776652769505658
+micro_precision:0.8776652769505658
+micro_recall:0.8776652769505658
+micro_f1-score:0.8776652769505658
+Confusion Matrix:  
+ [[247376  30663]
+ [  4255   3136]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.89      0.93    278039
+         1.0       0.09      0.42      0.15      7391
+
+    accuracy                           0.88    285430
+   macro avg       0.54      0.66      0.54    285430
+weighted avg       0.96      0.88      0.91    285430
+
+
+
+--------------------------------------------------
+The epoch now is: 2000
+The tested model now is on epoch 1981 with loss 75.09474182128906
+HERE IS THE TEST RESULTS:
+--------------------------------------------------
+The length of testing set is：365
+Accuracy:0.8813159093297831
+micro_precision:0.8813159093297831
+micro_recall:0.8813159093297831
+micro_f1-score:0.8813159093297831
+Confusion Matrix:  
+ [[248459  29580]
+ [  4296   3095]]
+Classification report:  
+               precision    recall  f1-score   support
+
+         0.0       0.98      0.89      0.94    278039
+         1.0       0.09      0.42      0.15      7391
+
+    accuracy                           0.88    285430
+   macro avg       0.54      0.66      0.55    285430
+weighted avg       0.96      0.88      0.92    285430
+
+Finally, the model saved locally is epoch 1981 with loss 75.09474182128906.

@@ -25,7 +25,7 @@ parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
 parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=1000,
+parser.add_argument('--epochs', type=int, nargs='?', default=2000,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
@@ -53,7 +53,7 @@ parser.add_argument('--residual', type=bool, nargs='?', default=True,
 # # Weight for negative samples in the binary cross-entropy loss function.
 # parser.add_argument('--neg_weight', type=float, nargs='?', default=1.0,
 #                     help='Weightage for negative samples')
-parser.add_argument('--learning_rate', type=float, nargs='?', default=0.0005, # default = 0.01
+parser.add_argument('--learning_rate', type=float, nargs='?', default=0.0002, # default = 0.01
                     help='Initial learning rate for self-attention model.')
 parser.add_argument('--spatial_drop', type=float, nargs='?', default=0.1,
                     help='Spatial (structural) attention Dropout (1 - keep probability).')
@@ -61,7 +61,7 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
-parser.add_argument('--leakage_weight', type=float, nargs='?', default=55,
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=100,
                     help='Give leakage labels more weight when getting loss since the biased lables.')
 
 # --------------------------
@@ -162,7 +162,7 @@ f.close()
 # --------------------------
 start_time = time.time()
 best_epoch_loss = 50000
-every_n_epoch = 1
+every_n_epoch = 100
 epoch_loss = []
 epoch_save = 0
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
