@@ -194,7 +194,7 @@ start_time = time.time()
 best_epoch_loss = 10**9 # infinite
 every_n_epoch = 100 # test saved model on 2019 dataset every_n_epoch, print results to .txt file
 valid_every_n_epoch = 10 # validate the model every 10 epochs->save time
-epoch_loss = [] # store the valid epoch_loss every epoch for update the model saved
+epoch_loss = [] # store the valid epoch_loss every valid_every_n_epoch epoch for update the model saved
 epoch_save = 0 # initialize the epoch that save the model
 total_train_step = 0 # batch num, add 1 every batch size
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
@@ -264,14 +264,14 @@ for epoch in range(args.epochs):
                 print("Valid leakage precision on epoch {}: {}".format(epoch + 1, precision_leakage))
                 writer.add_scalar("valid_leakage_precision_every_epoch", precision_leakage, epoch + 1)
 
-    # --------------------------
-    # Update the model with the lowest loss
-    # --------------------------
-    if epoch_loss[-1] < best_epoch_loss:
-        best_epoch_loss = epoch_loss[-1]
-        epoch_save = epoch + 1
-        torch.save(model.state_dict(), "./model_checkpoints/model.pt")
-        print("Update local model on epoch {} with valid loss {}.".format(epoch_save, best_epoch_loss))
+        # --------------------------
+        # Update the model with the lowest loss
+        # --------------------------
+        if epoch_loss[-1] < best_epoch_loss:
+            best_epoch_loss = epoch_loss[-1]
+            epoch_save = epoch + 1
+            torch.save(model.state_dict(), "./model_checkpoints/model.pt")
+            print("Update local model on epoch {} with valid loss {}.".format(epoch_save, best_epoch_loss))
     
     # training time every epoch (with valid time)
     end_time = time.time() # one epoch training end
