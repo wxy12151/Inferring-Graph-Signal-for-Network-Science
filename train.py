@@ -108,7 +108,8 @@ assert args.time_steps <= len(adjs), "Time steps is illegal"
 # --------------------------
 # Import the dataset
 # --------------------------
-dataset = MyDataset(args, graphs, feats, adjs, df_label)
+label_mode = True
+dataset = MyDataset(args, graphs, feats, adjs, df_label, label_mode)
 ''' 
 return:
 

@@ -15,7 +15,7 @@ import torch
 from torch.utils.data import Dataset
 
 class MyDataset(Dataset):
-    def __init__(self, args, graphs, features, adjs, df_label):
+    def __init__(self, args, graphs, features, adjs, df_label, label_mode):
         super(MyDataset, self).__init__()
         self.args = args
         self.graphs = graphs  # 所有时刻的图
@@ -30,7 +30,10 @@ class MyDataset(Dataset):
         self.min_t = max(self.time_steps - self.args.window - 1, 0) if args.window > 0 else 0  # 最小时间步==0
         self.degs = self.construct_degs()  # 计算每个时间步图中节点的度 [365 782]
         self.pyg_graphs = self._build_pyg_graphs()  # 定义dataloader: PyG格式的图信息 --> 包括点, 稀疏点边关系, 边对应权重
-        self.label = self._get_label() # 365 x 782 的label矩阵 1: leakage; 0: healthy
+        if label_mode:
+            self.label = self._get_label() # 365 x 782 的label矩阵 1: leakage; 0: healthy
+        elif not label_mode:
+            self.label = self.df_label
         # self.__createitems__()  # 创建训练语料
 
 

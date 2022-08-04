@@ -123,16 +123,6 @@ class DySAT(nn.Module):
         for t in range(self.num_time_steps): # 遍历每一个时间步骤
             emb_t = final_emb[t] #[N, F] 782 2;  获取这一时刻，所有节点的embedding
             graphloss = self.cirterion(emb_t, labels[t].to(torch.int64))
-
-            # source_node_emb = emb_t[node_1[t]] # [180 128] 初始节点对应的embedding
-            # tart_node_pos_emb = emb_t[node_2[t]] # [180 128] 正采样上下文节点对应的embedding
-            # tart_node_neg_emb = emb_t[node_2_negative[t]] # [180, 10, 128] 每个正采样节点进行10个负采样
-            # pos_score = torch.sum(source_node_emb*tart_node_pos_emb, dim=1)  # positive节点内积操作 [180]
-            # neg_score = -torch.sum(source_node_emb[:, None, :]*tart_node_neg_emb, dim=2).flatten() # negative节点内积操作 [1800]
-            # # self.bceloss: sigmoid和crossentropy组合在一起
-            # pos_loss = self.bceloss(pos_score, torch.ones_like(pos_score)) # positive节点和label进行交叉熵 [782, 128] -> 782
-            # neg_loss = self.bceloss(neg_score, torch.ones_like(neg_score)) # negtive 节点和label进行交叉熵
-            # graphloss = pos_loss + self.args.neg_weight*neg_loss
             self.graph_loss += graphloss
         return self.graph_loss
 

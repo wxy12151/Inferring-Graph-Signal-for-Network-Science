@@ -36,7 +36,7 @@ print('-'*50, file = f)
 parser = argparse.ArgumentParser()
 parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
-parser.add_argument('--GPU_ID', type=int, nargs='?', default=1,
+parser.add_argument('--GPU_ID', type=int, nargs='?', default=3,
                     help='GPU_ID (0/1 etc.)')
 parser.add_argument('--epochs', type=int, nargs='?', default=1000,
                     help='# epochs')
@@ -112,7 +112,7 @@ for i in range(len(graphs)):
 torch.cuda.set_device(args.GPU_ID)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
-dataset = MyDataset(args, graphs, feats, adjs, df_label)
+dataset = MyDataset(args, graphs, feats, adjs, df_label, label_mode = True)
 
 test_data_size = len(dataset)
 print("The length of testing set is：{}".format(test_data_size), file = f) # 365天的图
@@ -133,7 +133,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model_3_4.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins
@@ -166,9 +166,11 @@ prediction = prediction.cpu().numpy()
 accuracy_count = (prediction == targets).sum()
 test_data_size = test_data_size*782 # 782 nodes per day
 print("Accuracy:{}".format(accuracy_count/test_data_size), file = f)
-print('micro_precision:{}'.format(precision_score(targets, prediction, average='micro')), file = f)
-print('micro_recall:{}'.format(recall_score(targets, prediction, average='micro')), file = f)
-print('micro_f1-score:{}'.format(f1_score(targets, prediction, average='micro')), file = f)
+# print('micro_precision:{}'.format(precision_score(targets, prediction, average='micro')), file = f)
+# print('micro_recall:{}'.format(recall_score(targets, prediction, average='micro')), file = f)
+print('recall of 0:{}'.format(recall_score(targets, prediction, pos_label = 0)), file = f)
+print('recall of 1:{}'.format(recall_score(targets, prediction, pos_label = 1)), file = f)
+# print('micro_f1-score:{}'.format(f1_score(targets, prediction, average='micro')), file = f)
 print("Confusion Matrix: ", '\n', confusion_matrix(targets, prediction), file = f)
 print("Classification report: ", '\n', classification_report(targets, prediction), file = f)
 
