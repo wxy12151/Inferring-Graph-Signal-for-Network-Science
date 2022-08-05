@@ -68,8 +68,8 @@ from utils_pre.metrics import Metrics
 # --------------------------
 # Customize Choice
 # --------------------------
-# year = 2018
-year = 2019
+year = 2018
+# year = 2019
 
 # --------------------------
 # NetworkX Graph Conversion

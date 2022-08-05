@@ -96,18 +96,27 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 ### For training dataset
 year_start_ = 2016
 year_end_ = 2017
+mode = 'real'
+# mode = 'nominal'
 label_category = 'binary'
-path_ = './data/generator_data/{}_{}_nominal/'.format(year_start_, year_end_)
-graphs_train_dir = path_ + "graph_{}_{}_nominal.pkl".format(year_start_, year_end_)
+# label_category = 'multi'
+path_ = './data/generator_data/{}_{}_{}/'.format(year_start_, year_end_, mode)
+graphs_train_dir = path_ + "graph_{}_{}_{}.pkl".format(year_start_, year_end_, mode)
 graphs_train, adjs_train = load_graphs(graphs_train_dir) # n times 张图和邻接矩阵，注意点索引是1-782
 label_train_dir = path_ + 'label_{}_{}_{}.npy'.format(label_category, year_start_, year_end_)
 df_label_train = np.load(label_train_dir) # shape: (n_days, 782); num: binary:0/1 or multi:0/1/2.
 
-### For validation dataset in 2018
-graphs_valid_dir = "./data/graphs/graph.pkl"
-graphs_valid, adjs_valid = load_graphs(graphs_valid_dir) # 365张图和邻接矩阵，注意点索引是1-782
-label_valid_dir = './data/2018_Leakages.csv'
-df_label_valid = load_label(label_valid_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
+###!!!test!!! also us 2018 as training dataset
+# graphs_train_dir = "./data/graphs/graph_2018.pkl"
+# graphs_train, adjs_train = load_graphs(graphs_train_dir) # 365张图和邻接矩阵，注意点索引是1-782
+# label_train_dir = './data/2018_Leakages.csv'
+# df_label_train = load_label(label_train_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
+
+# ### For validation dataset in 2018
+# graphs_valid_dir = "./data/graphs/graph_2018.pkl"
+# graphs_valid, adjs_valid = load_graphs(graphs_valid_dir) # 365张图和邻接矩阵，注意点索引是1-782
+# label_valid_dir = './data/2018_Leakages.csv'
+# df_label_valid = load_label(label_valid_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
 # --------------------------
 # Extract nodal features
@@ -185,6 +194,7 @@ print('structural layer config:', args.structural_layer_config, file = f)
 print('temporal head config:', args.temporal_head_config, file = f)
 print('temporal layer config:', args.temporal_layer_config, file = f)
 print('leakage weight for getting loss:', args.leakage_weight, file = f)
+print('training data generated from {} to {} in {} mode'.format(year_start_, year_end_, mode), file = f)
 f.close()
 
 # --------------------------

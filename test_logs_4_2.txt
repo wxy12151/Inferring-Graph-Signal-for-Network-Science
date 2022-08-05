@@ -6,6 +6,7 @@ structural layer config: 128,128,64,64,64,64,32,32,32,32,64
 temporal head config: 8,8,8,8,8
 temporal layer config: 64,64,64,64,64
 leakage weight for getting loss: 30
+training data generated from 2016 to 2017 in nominal mode
 
 
 --------------------------------------------------
@@ -197,4 +198,3 @@ Classification report:
     accuracy                           0.96    285430
    macro avg       0.52      0.51      0.52    285430
 weighted avg       0.95      0.96      0.96    285430
-
