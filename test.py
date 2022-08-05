@@ -44,7 +44,7 @@ parser.add_argument('--epochs', type=int, nargs='?', default=1000,
 #                     help='Validation frequency (in epochs)')
 # parser.add_argument('--test_freq', type=int, nargs='?', default=1,
 #                     help='Testing frequency (in epochs)')
-parser.add_argument('--batch_size', type=int, nargs='?', default=512,
+parser.add_argument('--batch_size', type=int, nargs='?', default=365,
                     help='Batch size (# nodes)')
 # parser.add_argument('--featureless', type=bool, nargs='?', default=True,
 #                 help='True if one-hot encoding.')
@@ -133,7 +133,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model_3_4.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins

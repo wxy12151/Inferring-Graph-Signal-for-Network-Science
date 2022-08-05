@@ -1,9 +1,0 @@
-********************************************************************************
-learning rate: 0.0002
-epochs: 2000
-structural head config: 16,16,8,8,8,8,4,4,4,4,8
-structural layer config: 128,128,64,64,64,64,32,32,32,32,64
-temporal head config: 8,8,8,8,8
-temporal layer config: 64,64,64,64,64
-leakage weight for getting loss: 100
-

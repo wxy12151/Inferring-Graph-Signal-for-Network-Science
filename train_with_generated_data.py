@@ -63,7 +63,7 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
-parser.add_argument('--leakage_weight', type=float, nargs='?', default=100,
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=50,
                     help='Give leakage labels more weight when getting loss since the biased lables.')
 
 # --------------------------
