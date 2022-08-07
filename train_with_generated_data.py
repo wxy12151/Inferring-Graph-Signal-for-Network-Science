@@ -94,23 +94,23 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 # load graphs and labels
 # --------------------------
 ### For training dataset
-# year_start_ = 2016
-# year_end_ = 2017
-# mode = 'real'
-# # mode = 'nominal'
-# label_category = 'binary'
-# # label_category = 'multi'
-# path_ = './data/generator_data/{}_{}_{}/'.format(year_start_, year_end_, mode)
-# graphs_train_dir = path_ + "graph_{}_{}_{}.pkl".format(year_start_, year_end_, mode)
-# graphs_train, adjs_train = load_graphs(graphs_train_dir) # n times 张图和邻接矩阵，注意点索引是1-782
-# label_train_dir = path_ + 'label_{}_{}_{}.npy'.format(label_category, year_start_, year_end_)
-# df_label_train = np.load(label_train_dir) # shape: (n_days, 782); num: binary:0/1 or multi:0/1/2.
+year_start_ = 2018
+year_end_ = 2019
+mode = 'real'
+# mode = 'nominal'
+label_category = 'binary'
+# label_category = 'multi'
+path_ = './data/generator_data/{}_{}_{}/'.format(year_start_, year_end_, mode)
+graphs_train_dir = path_ + "graph_{}_{}_{}.pkl".format(year_start_, year_end_, mode)
+graphs_train, adjs_train = load_graphs(graphs_train_dir) # n times 张图和邻接矩阵，注意点索引是1-782
+label_train_dir = path_ + 'label_{}_{}_{}.npy'.format(label_category, year_start_, year_end_)
+df_label_train = np.load(label_train_dir) # shape: (n_days, 782); num: binary:0/1 or multi:0/1/2.
 
 ###!!!test!!! also us 2018 as training dataset
-graphs_train_dir = "./data/graphs/graph_2018.pkl"
-graphs_train, adjs_train = load_graphs(graphs_train_dir) # 365张图和邻接矩阵，注意点索引是1-782
-label_train_dir = './data/2018_Leakages.csv'
-df_label_train = load_label(label_train_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
+# graphs_train_dir = "./data/graphs/graph_2018.pkl"
+# graphs_train, adjs_train = load_graphs(graphs_train_dir) # 365张图和邻接矩阵，注意点索引是1-782
+# label_train_dir = './data/2018_Leakages.csv'
+# df_label_train = load_label(label_train_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
 ### For validation dataset in 2018
 graphs_valid_dir = "./data/graphs/graph_2018.pkl"
@@ -135,7 +135,7 @@ assert args.time_steps <= len(adjs_train), "Time steps is illegal"
 # --------------------------
 # Import the dataset
 # --------------------------
-label_mode_train = True # means df_label does not need the help with self._get_label() in MyDataset class
+label_mode_train = False # means df_label does not need the help with self._get_label() in MyDataset class
 train_dataset = MyDataset(args, graphs_train, feats_train, adjs_train, df_label_train, label_mode_train)
 
 label_mode_valid = True 
@@ -194,7 +194,7 @@ print('structural layer config:', args.structural_layer_config, file = f)
 print('temporal head config:', args.temporal_head_config, file = f)
 print('temporal layer config:', args.temporal_layer_config, file = f)
 print('leakage weight for getting loss:', args.leakage_weight, file = f)
-# print('training data generated from {} to {} in {} mode'.format(year_start_, year_end_, mode), file = f)
+print('training data generated from {} to {} in {} mode'.format(year_start_, year_end_, mode), file = f)
 f.close()
 
 # --------------------------
@@ -203,11 +203,12 @@ f.close()
 start_time = time.time()
 best_epoch_loss = 10**9 # infinite
 every_n_epoch = 100 # test saved model on 2019 dataset every_n_epoch, print results to .txt file
-valid_every_n_epoch = 1 # validate the model every 10 epochs->save time
+valid_every_n_epoch = 5 # validate the model every 10 epochs->save time
 epoch_loss = [] # store the valid epoch_loss every valid_every_n_epoch epoch for update the model saved
 epoch_save = 0 # initialize the epoch that save the model
 total_train_step = 0 # batch num, add 1 every batch size
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
+
 for epoch in range(args.epochs):
     print("-------Training round {} begins-------".format(epoch+1))
     batch_loss = []
@@ -256,7 +257,6 @@ for epoch in range(args.epochs):
                 print("Valid Loss on epoch {}: {}".format(epoch + 1, loss.item()))
                 writer.add_scalar("valid_loss_every_epoch", loss.item(), epoch + 1)
                 epoch_loss.append(loss.item())
-
 
                 # true labels and predict lables
                 y_score_node = torch.tensor(()).to(device)
