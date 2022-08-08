@@ -94,8 +94,8 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 # load graphs and labels
 # --------------------------
 ### For training dataset
-year_start_ = 2018
-year_end_ = 2019
+year_start_ = 2016
+year_end_ = 2017
 mode = 'real'
 # mode = 'nominal'
 label_category = 'binary'
@@ -307,7 +307,7 @@ for epoch in range(args.epochs):
     
 file_path = './test_logs.txt'
 f=open(file_path, 'a')
-print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, epoch_loss[epoch_save-1]), file = f)
+print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, best_epoch_loss), file = f)
 f.close()
 
 writer.close()
