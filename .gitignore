@@ -1,6 +1,8 @@
 data/*
 model_checkpoints/*
+evaluation/*
 .vscode/
+test_logs.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

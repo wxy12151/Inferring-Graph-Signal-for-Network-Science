@@ -36,7 +36,7 @@ print('-'*50, file = f)
 parser = argparse.ArgumentParser()
 parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
-parser.add_argument('--GPU_ID', type=int, nargs='?', default=3,
+parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
                     help='GPU_ID (0/1 etc.)')
 parser.add_argument('--epochs', type=int, nargs='?', default=1000,
                     help='# epochs')
@@ -133,7 +133,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model_3_4.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins
@@ -173,6 +173,9 @@ print('recall of 1:{}'.format(recall_score(targets, prediction, pos_label = 1)),
 # print('micro_f1-score:{}'.format(f1_score(targets, prediction, average='micro')), file = f)
 print("Confusion Matrix: ", '\n', confusion_matrix(targets, prediction), file = f)
 print("Classification report: ", '\n', classification_report(targets, prediction), file = f)
+
+np.save('./evaluation/targets.npy', targets)
+np.save('./evaluation/predictions.npy', prediction)
 
 f.close()
         

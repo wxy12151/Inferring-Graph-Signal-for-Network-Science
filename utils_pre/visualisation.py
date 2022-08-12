@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 
 # Helper function for visualisation
-def visualise(G, pos=None, color='blue', epoch=None, loss=None, axis=None,figsize=(32,32), edge_labels=True, **kwargs):
+def visualise(G, pos=None, color='blue', epoch=None, loss=None, axis=None,figsize=(32,32), edge_labels=None, **kwargs):
     
     if axis is None:
         _, axis = plt.subplots(nrows=1,ncols=1, figsize=figsize, dpi = 300)
@@ -47,8 +47,10 @@ def visualise(G, pos=None, color='blue', epoch=None, loss=None, axis=None,figsiz
                          node_color=color, ax=axis)
         #labels = nx.get_edge_attributes(G,'weight')
         
-        #labels = dict([((u,v,), d['name']) for u,v,d in G.edges(data=True)])           #<---- If you wanna plot the name of the pipe on the edge
-        labels = dict([((u,v,), f"{d['weight']:.2f}") for u,v,d in G.edges(data=True)]) #<---- If you wanna plot the weight of the pipe on the edge
+        if edge_labels == 'pipe_name':
+            labels = dict([((u,v,), d['name']) for u,v,d in G.edges(data=True)])           #<---- If you wanna plot the name of the pipe on the edge
+        if edge_labels == 'pipe_weight':
+            labels = dict([((u,v,), f"{d['weight']:.2f}") for u,v,d in G.edges(data=True)]) #<---- If you wanna plot the weight of the pipe on the edge
 
         nx.draw_networkx_edge_labels(G,pos,edge_labels=labels, ax=axis)
         
