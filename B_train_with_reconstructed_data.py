@@ -282,7 +282,7 @@ for epoch in range(args.epochs):
         print('The tested model now is on epoch {} with loss {}'.format(epoch_save, best_epoch_loss), file = f)
         print('HERE IS THE TEST RESULTS:', file = f)
         f.close()
-        os.system("python test.py")
+        os.system("python B_test_with_reconstructed_data.py")
 
     start_time = time.time()
     
