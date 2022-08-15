@@ -4,16 +4,21 @@ import numpy as np
 import pickle as pkl
 import networkx as nx
 import scipy.sparse as sp
-from sklearn.model_selection import train_test_split
-from utils.preprocess import load_graphs, load_label, get_context_pairs, get_evaluation_data
-from utils.minibatch import  MyDataset
-from utils.utilities import to_device
-from models.model import DySAT
 import pandas as pd
-
+import epynet 
 import torch
 from torch.utils.data import DataLoader
 import time
+import yaml
+from scipy.sparse import csr_matrix
+
+from utils.preprocess import load_graphs, load_label, get_context_pairs, get_evaluation_data
+from utils.minibatch import  MyDataset
+from utils.utilities import to_device
+from utils_pre.epanet_loader import get_nx_graph
+from utils_pre.epanet_simulator import epanetSimulator
+from utils_pre.data_loader import dataCleaner
+from models.model import DySAT
 
 from tensorboardX import SummaryWriter
 
@@ -89,10 +94,84 @@ torch.cuda.set_device(args.GPU_ID)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 # --------------------------
-# load graphs and labels - Revise it!
+# load graphs - Revise it!
 # --------------------------
-graphs_dir = "./data/graphs/graph.pkl"
-graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
+
+# Runtime configuration
+path_to_wdn     = './data/L-TOWN.inp'
+path_to_data    = './data/l-town-data/'
+scaling         = 'minmax'
+
+# Import the .inp file using the EPYNET library
+wdn = epynet.Network(path_to_wdn)
+
+# Solve hydraulic model for a single timestep
+wdn.solve()
+
+# Convert the file using a custom function, based on:
+# https://github.com/BME-SmartLab/GraphConvWat 
+G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
+
+# Instantiate the nominal WDN model
+nominal_wdn_model = epanetSimulator(path_to_wdn, path_to_data)
+
+# Run a simulation
+nominal_wdn_model.simulate()
+
+# Retrieve the nodal pressures
+nominal_pressure = nominal_wdn_model.get_simulated_pressure()
+
+# Run a simulation
+nominal_wdn_model.simulate()
+
+# Retrieve the nodal pressures
+nominal_pressure = nominal_wdn_model.get_simulated_pressure()
+
+# Open the dataset configuration file
+with open(path_to_data + 'dataset_configuration.yml') as file:
+
+    # Load the configuration to a dictionary
+    config = yaml.load(file, Loader=yaml.FullLoader) 
+
+# Generate a list of integers, indicating the number of the node
+# at which a  pressure sensor is present
+sensors = [int(string.replace("n", "")) for string in config['pressure_sensors']]
+
+x,y,scale,bias = dataCleaner(pressure_df    = nominal_pressure, # Pass the nodal pressures
+                                observed_nodes = sensors,          # Indicate which nodes have sensors
+                                rescale        = scaling)          # Perform scaling on the timeseries data
+
+def read_prediction(filename='predictions.csv', scale=1, bias=0, start_date='2018-01-01 00:00:00'):
+    df = pd.read_csv(filename, index_col='Unnamed: 0', error_bad_lines=False)
+    df.columns = ['n{}'.format(int(node)+1) for node in df.columns]
+    df = df*scale+bias
+    df.index = pd.date_range(start=start_date,
+                             periods=len(df),
+                             freq = '5min')
+    return df
+
+r18 = read_prediction(filename='./data/reconstruction/2018_reconstructions.csv',
+                      scale=scale,
+                      bias=bias,
+                      start_date='2018-01-01 00:00:00')
+
+begin_year = r18.index[0].date().year
+end_year = r18.index[-1].date().year
+
+graphs = []
+for i in range((end_year - begin_year + 1)*365): # range(365)
+    tmp_feature = []
+    for node in G.nodes(): # 1-782
+        tmp_feature.append(np.array(r18.iloc[288*i : 288*(i+1), node-1].tolist()))
+    G.graph["feature"] = csr_matrix(tmp_feature) 
+    graphs.append(G.copy())
+
+adjs = [nx.adjacency_matrix(g) for g in graphs]
+
+# --------------------------
+# load labels - Revise it!
+# --------------------------
+
 label_dir = './data/2018_Leakages.csv'
 df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
@@ -141,12 +220,12 @@ opt = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=
 # --------------------------
 # Add tensorboard
 # --------------------------
-writer = SummaryWriter("logs")
+writer = SummaryWriter("logs_with_reconst")
 
 # --------------------------
 # Print to txt file locally
 # --------------------------
-file_path = './test_logs.txt'
+file_path = './test_logs_with_reconst.txt'
 f=open(file_path, 'a')
 print('*'*80, file = f)
 print('learning rate:', args.learning_rate, file = f)

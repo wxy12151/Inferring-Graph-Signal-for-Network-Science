@@ -3,7 +3,9 @@ model_checkpoints/*
 evaluation/*
 .vscode/
 test_logs.txt
+test_logs_with_reconst.txt
 logs/*
+logs_with_reconst/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
