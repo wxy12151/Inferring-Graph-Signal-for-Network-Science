@@ -86,9 +86,9 @@ parser.add_argument('--leakage_weight', type=float, nargs='?', default=55,
 # --------------------------
 # Architecture params
 # --------------------------
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8,8,8,8,4,4,4,4,8', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64,64,64,64,32,32,32,32,64', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
 parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8', # default = 16
                     help='Encoder layer config: # attention heads in each Temporal layer')
@@ -211,7 +211,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters - Revise it!
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model_reconst_1.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins

@@ -274,7 +274,7 @@ for epoch in range(args.epochs):
     
     # Test the saved model every n epochs
     if (epoch+1) % every_n_epoch == 0:
-        file_path = './test_logs.txt'
+        file_path = './test_logs_with_reconst.txt'
         f=open(file_path, 'a')
         print('\n', file = f)
         print('-'*50, file = f)
@@ -286,7 +286,7 @@ for epoch in range(args.epochs):
 
     start_time = time.time()
     
-file_path = './test_logs.txt'
+file_path = './test_logs_with_reconst.txt'
 f=open(file_path, 'a')
 print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, epoch_loss[epoch_save-1]), file = f)
 f.close()
