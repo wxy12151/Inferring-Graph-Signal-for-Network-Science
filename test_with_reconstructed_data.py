@@ -14,6 +14,9 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc, precision_score, recall_score, \
     f1_score, roc_auc_score
+import yaml
+import epynet 
+from scipy.sparse import csr_matrix
 
 # --------------------------
 # Importing custom libraries
@@ -21,12 +24,15 @@ from sklearn.metrics import confusion_matrix, classification_report, roc_curve, 
 from utils.preprocess import load_graphs, load_label, get_context_pairs, get_evaluation_data
 from utils.minibatch import  MyDataset
 from utils.utilities import to_device
+from utils_pre.epanet_loader import get_nx_graph
+from utils_pre.epanet_simulator import epanetSimulator
+from utils_pre.data_loader import dataCleaner
 from models.model import DySAT
 
 # --------------------------
 # Print to txt file locally
 # --------------------------
-file_path = './test_logs.txt'
+file_path = './test_logs_with_reconst.txt'
 f=open(file_path, 'a')
 print('-'*50, file = f)
 
@@ -74,7 +80,7 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
-parser.add_argument('--leakage_weight', type=float, nargs='?', default=100,
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=55,
                     help='Give leakage labels more weight when getting loss since the biased lables.')
 
 # --------------------------
@@ -95,15 +101,87 @@ parser.add_argument('--window', type=int, nargs='?', default=-1,
 args = parser.parse_args()
 # print(args)
 
+# --------------------------
+# load graphs - Revise it!
+# --------------------------
 
-#----------------------------------------------------------------#
-# Load the test dataset
-#----------------------------------------------------------------#
+# Runtime configuration
+path_to_wdn     = './data/L-TOWN.inp'
+path_to_data    = './data/l-town-data/'
+scaling         = 'minmax'
 
-graphs_dir = "./data/graphs/graph_2019.pkl"
-graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
+# Import the .inp file using the EPYNET library
+wdn = epynet.Network(path_to_wdn)
+
+# Solve hydraulic model for a single timestep
+wdn.solve()
+
+# Convert the file using a custom function, based on:
+# https://github.com/BME-SmartLab/GraphConvWat 
+G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
+
+# Instantiate the nominal WDN model
+nominal_wdn_model = epanetSimulator(path_to_wdn, path_to_data)
+
+# Run a simulation
+nominal_wdn_model.simulate()
+
+# Retrieve the nodal pressures
+nominal_pressure = nominal_wdn_model.get_simulated_pressure()
+
+# Run a simulation
+nominal_wdn_model.simulate()
+
+# Retrieve the nodal pressures
+nominal_pressure = nominal_wdn_model.get_simulated_pressure()
+
+# Open the dataset configuration file
+with open(path_to_data + 'dataset_configuration.yml') as file:
+
+    # Load the configuration to a dictionary
+    config = yaml.load(file, Loader=yaml.FullLoader) 
+
+# Generate a list of integers, indicating the number of the node
+# at which a  pressure sensor is present
+sensors = [int(string.replace("n", "")) for string in config['pressure_sensors']]
+
+x,y,scale,bias = dataCleaner(pressure_df    = nominal_pressure, # Pass the nodal pressures
+                                observed_nodes = sensors,          # Indicate which nodes have sensors
+                                rescale        = scaling)          # Perform scaling on the timeseries data
+
+def read_prediction(filename='predictions.csv', scale=1, bias=0, start_date='2018-01-01 00:00:00'):
+    df = pd.read_csv(filename, index_col='Unnamed: 0', error_bad_lines=False)
+    df.columns = ['n{}'.format(int(node)+1) for node in df.columns]
+    df = df*scale+bias
+    df.index = pd.date_range(start=start_date,
+                             periods=len(df),
+                             freq = '5min')
+    return df
+
+r19 = read_prediction(filename='./data/reconstruction/2019_reconstructions.csv',
+                      scale=scale,
+                      bias=bias,
+                      start_date='2019-01-01 00:00:00')
+
+begin_year = r19.index[0].date().year
+end_year = r19.index[-1].date().year
+
+graphs = []
+for i in range((end_year - begin_year + 1)*365): # range(365)
+    tmp_feature = []
+    for node in G.nodes(): # 1-782
+        tmp_feature.append(np.array(r19.iloc[288*i : 288*(i+1), node-1].tolist()))
+    G.graph["feature"] = csr_matrix(tmp_feature) 
+    graphs.append(G.copy())
+
+adjs = [nx.adjacency_matrix(g) for g in graphs]
+
+# --------------------------
+# load labels - Revise it!
+# --------------------------
+
 label_dir = './data/2019_Leakages.csv'
-df_label = load_label(label_dir) # 2019 leakage pipes dataset; 105120(365x288) rows × 23(leakages) columns
+df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
 feats = []
 for i in range(len(graphs)):
@@ -131,9 +209,9 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
 model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 
 #----------------------------------------------------------------#
-# Import Trained Model's Parameters
+# Import Trained Model's Parameters - Revise it!
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model_3_4.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model_reconst_1.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins
