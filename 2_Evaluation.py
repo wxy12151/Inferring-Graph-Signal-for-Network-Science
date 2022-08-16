@@ -14,6 +14,7 @@ from utils_pre.epanet_loader import get_nx_graph
 #----------------------------------------------------------------#
 # import the Grpah of WDN
 #----------------------------------------------------------------#
+print('1.import the Grpah of WDN')
 
 path_to_wdn = './data/L-TOWN.inp' # Do I need to distinguish between REAL and NOMINAL EPANET inps here? 
 
@@ -31,6 +32,7 @@ G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
 #----------------------------------------------------------------#
 # Load the Predictions
 #----------------------------------------------------------------#
+print('2.Load the Predictions')
 
 predictions = np.load('./evaluation/predictions.npy')
 predictions = predictions.reshape((365, 782))
@@ -46,6 +48,7 @@ def out_date_by_day(year, day):
 #----------------------------------------------------------------#
 # Tag Filtering Step 1: Filter by Frequency
 #----------------------------------------------------------------#
+print('3.Tag Filtering Step 1: Filter by Frequency')
 
 frequency = 14
 
@@ -93,6 +96,7 @@ def shortest_length_between_pipes(G, pipe1, pipe2):
 #----------------------------------------------------------------#
 # Tag Filtering Step 2: Filter by the Distance between Pipes
 #----------------------------------------------------------------#
+print('4.Tag Filtering Step 2: Filter by the Distance between Pipes')
 
 distance = 5
 
@@ -117,6 +121,7 @@ results_2 = results_2.drop_duplicates(ignore_index = True)
 #----------------------------------------------------------------#
 # Save to results_data.txt
 #----------------------------------------------------------------#
+print('5.Save to results_data.txt')
 file_path = './results_data.txt'
 f=open(file_path, 'a')
 print('# linkID, startTime, endTime, leakDiameter (m), leakType, peakTime', file = f)

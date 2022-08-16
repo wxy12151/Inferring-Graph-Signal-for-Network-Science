@@ -176,6 +176,7 @@ print("Classification report: ", '\n', classification_report(targets, prediction
 
 np.save('./evaluation/targets.npy', targets)
 np.save('./evaluation/predictions.npy', prediction)
+print("targets and predictions have been saved to folder evaluation", file = f)
 
 f.close()
         
