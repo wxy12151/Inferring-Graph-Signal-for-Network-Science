@@ -4,9 +4,19 @@ evaluation/*
 .vscode/
 test_logs.txt
 test_logs_with_reconst.txt
-logs/*
-logs_with_reconst/*
+
 results_data/*
+
+logs/*
+logs_no_generated/*
+logs_shuffle_true/*
+logs_test/*
+logs_with_generated/*
+logs_with_reconst/*
+
+test_logs/*
+
+temporary/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
