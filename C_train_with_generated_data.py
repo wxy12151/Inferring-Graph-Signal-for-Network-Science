@@ -27,7 +27,7 @@ parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
 parser.add_argument('--GPU_ID', type=int, nargs='?', default=1,
                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=1000,
+parser.add_argument('--epochs', type=int, nargs='?', default=2000,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
@@ -55,7 +55,7 @@ parser.add_argument('--residual', type=bool, nargs='?', default=True,
 # # Weight for negative samples in the binary cross-entropy loss function.
 # parser.add_argument('--neg_weight', type=float, nargs='?', default=1.0,
 #                     help='Weightage for negative samples')
-parser.add_argument('--learning_rate', type=float, nargs='?', default=0.001, # default = 0.01
+parser.add_argument('--learning_rate', type=float, nargs='?', default=0.0002, # default = 0.01
                     help='Initial learning rate for self-attention model.')
 parser.add_argument('--spatial_drop', type=float, nargs='?', default=0.1,
                     help='Spatial (structural) attention Dropout (1 - keep probability).')
@@ -63,7 +63,7 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
-parser.add_argument('--leakage_weight', type=float, nargs='?', default=30,
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=100,
                     help='Give leakage labels more weight when getting loss since the biased lables.')
 
 # --------------------------
@@ -106,17 +106,27 @@ graphs_train, adjs_train = load_graphs(graphs_train_dir) # n times 张图和邻�
 label_train_dir = path_ + 'label_{}_{}_{}.npy'.format(label_category, year_start_, year_end_)
 df_label_train = np.load(label_train_dir) # shape: (n_days, 782); num: binary:0/1 or multi:0/1/2.
 
+### For validation dataset in 2018
+graphs_valid_dir = "./data/graphs/graph_2018.pkl"
+graphs_valid, adjs_valid = load_graphs(graphs_valid_dir) # 365张图和邻接矩阵，注意点索引是1-782
+label_valid_dir = './data/2018_Leakages.csv'
+df_label_valid = load_label(label_valid_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
+
+# --------------------------
+# 2018 as training dataset and 2019 as valid dataset
+# --------------------------
+
 ###!!!test!!! also us 2018 as training dataset
 # graphs_train_dir = "./data/graphs/graph_2018.pkl"
 # graphs_train, adjs_train = load_graphs(graphs_train_dir) # 365张图和邻接矩阵，注意点索引是1-782
 # label_train_dir = './data/2018_Leakages.csv'
 # df_label_train = load_label(label_train_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
-### For validation dataset in 2018
-graphs_valid_dir = "./data/graphs/graph_2018.pkl"
-graphs_valid, adjs_valid = load_graphs(graphs_valid_dir) # 365张图和邻接矩阵，注意点索引是1-782
-label_valid_dir = './data/2018_Leakages.csv'
-df_label_valid = load_label(label_valid_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
+# ### For validation dataset in 2019
+# graphs_valid_dir = "./data/graphs/graph_2019.pkl"
+# graphs_valid, adjs_valid = load_graphs(graphs_valid_dir) # 365张图和邻接矩阵，注意点索引是1-782
+# label_valid_dir = './data/2019_Leakages.csv'
+# df_label_valid = load_label(label_valid_dir) # 2019 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
 # --------------------------
 # Extract nodal features
@@ -203,7 +213,7 @@ f.close()
 start_time = time.time()
 best_epoch_loss = 10**9 # infinite
 every_n_epoch = 100 # test saved model on 2019 dataset every_n_epoch, print results to .txt file
-valid_every_n_epoch = 5 # validate the model every 10 epochs->save time
+valid_every_n_epoch = 1 # validate the model every 10 epochs->save time
 epoch_loss = [] # store the valid epoch_loss every valid_every_n_epoch epoch for update the model saved
 epoch_save = 0 # initialize the epoch that save the model
 total_train_step = 0 # batch num, add 1 every batch size
@@ -301,7 +311,7 @@ for epoch in range(args.epochs):
         print('The tested model now is on epoch {} with loss {}'.format(epoch_save, best_epoch_loss), file = f)
         print('HERE IS THE TEST RESULTS:', file = f)
         f.close()
-        os.system("python test.py")
+        os.system("python A_test.py")
 
     start_time = time.time()
     

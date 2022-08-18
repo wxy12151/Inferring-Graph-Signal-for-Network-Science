@@ -133,7 +133,7 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model_3_4.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
 
 #----------------------------------------------------------------#
 # The testing step begins

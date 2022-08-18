@@ -1,0 +1,130 @@
+********************************************************************************
+USING 2018 AS TRAINING DATASET AND 2019 AS VALIDATION DATASET
+learning rate: 0.0002
+epochs: 2000
+structural head config: 16,16,8,8,8,8,4,4,4,4,8
+structural layer config: 128,128,64,64,64,64,32,32,32,32,64
+temporal head config: 8,8,8,8,8
+temporal layer config: 64,64,64,64,64
+leakage weight for getting loss: 100
+
+
+--------------------------------------------------
+The epoch now is: 100
+The tested model now is on epoch 13 with loss 259.54925537109375
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 200
+The tested model now is on epoch 13 with loss 259.54925537109375
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 300
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 400
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 500
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 600
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 700
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 800
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 900
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1000
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1100
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1200
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1300
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1400
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1500
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1600
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1700
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1800
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 1900
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+
+
+--------------------------------------------------
+The epoch now is: 2000
+The tested model now is on epoch 265 with loss 245.3296356201172
+HERE IS THE TEST RESULTS:
+Finally, the model saved locally is epoch 265 with loss 245.3296356201172.
