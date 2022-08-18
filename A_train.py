@@ -89,9 +89,16 @@ torch.cuda.set_device(args.GPU_ID)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 # --------------------------
-# load graphs and labels - Revise it!
+# Revise it!
 # --------------------------
-graphs_dir = "./data/graphs/graph_2018_pipeLength.pkl"
+# edge_weight = 'pipe_length'
+edge_weight = 'inv_pipe_length'
+# edge_weight = 'unweighted'
+
+# --------------------------
+# load graphs and labels
+# --------------------------
+graphs_dir = "./data/graphs/graph_2018_{}.pkl".format(edge_weight)
 graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
 label_dir = './data/2018_Leakages.csv'
 df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns

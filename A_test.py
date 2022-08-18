@@ -96,11 +96,19 @@ parser.add_argument('--window', type=int, nargs='?', default=-1,
 args = parser.parse_args()
 # print(args)
 
+# --------------------------
+# Revise it!
+# --------------------------
+# edge_weight = 'pipe_length'
+edge_weight = 'inv_pipe_length'
+# edge_weight = 'unweighted'
+
+trained_model_name = 'model'
 
 #----------------------------------------------------------------#
 # Load the test dataset
 #----------------------------------------------------------------#
-graphs_dir = "./data/graphs/graph_2019_pipeLength.pkl"
+graphs_dir = "./data/graphs/graph_2019_{}.pkl".format(edge_weight)
 graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
 label_dir = './data/2019_Leakages.csv'
 df_label = load_label(label_dir) # 2019 leakage pipes dataset; 105120(365x288) rows × 23(leakages) columns
@@ -133,7 +141,6 @@ model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 #----------------------------------------------------------------#
 # Import Trained Model's Parameters - Revise it!
 #----------------------------------------------------------------#
-trained_model_name = 'model'
 model.load_state_dict(torch.load("./model_checkpoints/{}.pt".format(trained_model_name)))
 
 #----------------------------------------------------------------#

@@ -70,6 +70,7 @@ from utils_pre.metrics import Metrics
 # --------------------------
 year = 2018
 # year = 2019
+edge_weight = 'unweighted'
 
 # --------------------------
 # NetworkX Graph Conversion
@@ -83,7 +84,7 @@ wdn.solve()
 # Convert the file using a custom function, based on:
 # https://github.com/BME-SmartLab/GraphConvWat
 # G: Graph in nx format; pos: node position; head: hydraulic heads which not used in this project
-G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
+G , pos , head = get_nx_graph(wdn, weight_mode= edge_weight, get_head=True)
 
 # --------------------------
 # Configuration File Import-->find the nodes with pressure sensor
@@ -156,7 +157,7 @@ for i in range((end - begin).days+1): # range(365)
     G.graph["feature"] = csr_matrix(tmp_feature) # need to copy G
     graphs.append(G.copy())
 
-save_path = './data/graphs/graph_{}.pkl'.format(year)
+save_path = './data/graphs/graph_{}_{}.pkl'.format(year, edge_weight)
 with open(save_path, "wb") as f:
     pkl.dump(graphs, f)
 print("Processed Data Saved at {}".format(save_path))
