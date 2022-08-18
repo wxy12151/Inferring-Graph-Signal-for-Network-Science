@@ -187,13 +187,21 @@ feats = []
 for i in range(len(graphs)):
     feats.append(graphs[i].graph['feature'])
 
+# --------------------------
+# CUDA Config
+# --------------------------
+
 torch.cuda.set_device(args.GPU_ID)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
+
+# --------------------------
+# Dataset and DataLoader
+# --------------------------
 
 dataset = MyDataset(args, graphs, feats, adjs, df_label, label_mode = True)
 
 test_data_size = len(dataset)
-print("The length of testing set is：{}".format(test_data_size), file = f) # 365天的图
+print("The length of training dataset/days is：{}".format(test_data_size), file = f) # 365天的图
 
 dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所以会导入2018年所有图的信息
                         batch_size=args.batch_size, # default 512

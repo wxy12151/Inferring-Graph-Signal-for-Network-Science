@@ -25,13 +25,13 @@ parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
 parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=2000,
+parser.add_argument('--epochs', type=int, nargs='?', default=300,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
 # parser.add_argument('--test_freq', type=int, nargs='?', default=1,
 #                     help='Testing frequency (in epochs)')
-parser.add_argument('--batch_size', type=int, nargs='?', default=512,
+parser.add_argument('--batch_size', type=int, nargs='?', default=365,
                     help='Batch size (# nodes)')
 # parser.add_argument('--featureless', type=bool, nargs='?', default=True,
 #                 help='True if one-hot encoding.')
@@ -91,7 +91,7 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 # --------------------------
 # load graphs and labels - Revise it!
 # --------------------------
-graphs_dir = "./data/graphs/graph.pkl"
+graphs_dir = "./data/graphs/graph_2018_pipeLength.pkl"
 graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
 label_dir = './data/2018_Leakages.csv'
 df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
@@ -162,8 +162,8 @@ f.close()
 # Training Start
 # --------------------------
 start_time = time.time()
-best_epoch_loss = 50000
-every_n_epoch = 100
+best_epoch_loss = float('inf')
+every_n_epoch = 50
 epoch_loss = []
 epoch_save = 0
 os.environ['MKL_THREADING_LAYER'] = 'GNU'

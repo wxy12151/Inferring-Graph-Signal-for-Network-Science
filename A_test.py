@@ -12,6 +12,7 @@ import networkx as nx
 import scipy.sparse as sp
 from sklearn.model_selection import train_test_split
 import pandas as pd
+from matplotlib import pyplot as plt
 from sklearn.metrics import confusion_matrix, classification_report, roc_curve, auc, precision_score, recall_score, \
     f1_score, roc_auc_score
 
@@ -99,8 +100,7 @@ args = parser.parse_args()
 #----------------------------------------------------------------#
 # Load the test dataset
 #----------------------------------------------------------------#
-
-graphs_dir = "./data/graphs/graph_2019.pkl"
+graphs_dir = "./data/graphs/graph_2019_pipeLength.pkl"
 graphs, adjs = load_graphs(graphs_dir ) # 365张图和邻接矩阵，注意点索引是1-782
 label_dir = './data/2019_Leakages.csv'
 df_label = load_label(label_dir) # 2019 leakage pipes dataset; 105120(365x288) rows × 23(leakages) columns
@@ -115,7 +115,7 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 dataset = MyDataset(args, graphs, feats, adjs, df_label, label_mode = True)
 
 test_data_size = len(dataset)
-print("The length of testing set is：{}".format(test_data_size), file = f) # 365天的图
+print("The length of testing dataset/days is：{}".format(test_data_size), file = f) # 365天的图
 
 dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所以会导入2018年所有图的信息
                         batch_size=args.batch_size, # default 512
@@ -131,9 +131,10 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
 model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 
 #----------------------------------------------------------------#
-# Import Trained Model's Parameters
+# Import Trained Model's Parameters - Revise it!
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
+trained_model_name = 'model'
+model.load_state_dict(torch.load("./model_checkpoints/{}.pt".format(trained_model_name)))
 
 #----------------------------------------------------------------#
 # The testing step begins
@@ -157,6 +158,10 @@ with torch.no_grad():
         
 print('The shape of the node scores: {}'.format(y_score_node.shape)) # torch.Size([285430, 2]) 365x782
 print('The shape of the node labels: {}'.format(targets.shape)) # torch.Size([285430])
+
+#----------------------------------------------------------------#
+# Statistical Metrics
+#----------------------------------------------------------------#
     
 _, prediction = torch.max(F.softmax(y_score_node, dim = 1), 1)
 
@@ -174,9 +179,36 @@ print('recall of 1:{}'.format(recall_score(targets, prediction, pos_label = 1)),
 print("Confusion Matrix: ", '\n', confusion_matrix(targets, prediction), file = f)
 print("Classification report: ", '\n', classification_report(targets, prediction), file = f)
 
-np.save('./evaluation/targets.npy', targets)
-np.save('./evaluation/predictions.npy', prediction)
-print("targets and predictions have been saved to folder evaluation", file = f)
+#----------------------------------------------------------------#
+# ROC
+#----------------------------------------------------------------#
+scores_ = F.softmax(y_score_node, dim = 1).cpu().numpy() # 285430 x 2: 2代表0和1类别的概率
+
+# fpr, tpr, thresholds = roc_curve(targets, scores_[:, 1], pos_label=1) # positive label = 1
+# auc_ = auc(fpr, tpr)
+# plt.figure()
+# lw = 2
+# plt.plot(fpr, tpr, color='darkorange',
+#          lw=lw, label='ROC curve (area = %0.2f)' % auc_)
+# plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+# plt.xlim([0.0, 1.0])
+# plt.ylim([0.0, 1.05])
+# plt.xlabel('False Positive Rate')
+# plt.ylabel('True Positive Rate')
+# plt.title('Receiver operating characteristic of ')
+# plt.legend(loc="lower right")
+# plt.savefig('./figure/ROC/roc_baseline_pipelength.png')
+# plt.show()
+
+auc_score =  roc_auc_score(targets, scores_[:, 1])
+print("AUC:", auc_score, file = f)
+
+#----------------------------------------------------------------#
+# Save predictions for processing to competition results format
+#----------------------------------------------------------------#
+# np.save('./evaluation/targets.npy', targets)
+# np.save('./evaluation/predictions.npy', prediction)
+# print("targets and predictions have been saved to folder evaluation", file = f)
 
 f.close()
         
