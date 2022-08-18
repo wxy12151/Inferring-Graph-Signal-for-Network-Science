@@ -1,3 +1,4 @@
+from asyncio import Task, tasks
 import numpy as np
 import pandas as pd
 import epynet
@@ -10,6 +11,15 @@ import pandas as pd
 import networkx as nx
 
 from utils_pre.epanet_loader import get_nx_graph
+
+#----------------------------------------------------------------#
+# Revise it!
+#----------------------------------------------------------------#
+task_name = 'baseline'
+edge_weight = 'pipe_length'
+
+frequency = 5
+distance = 5
 
 #----------------------------------------------------------------#
 # import the Grpah of WDN
@@ -27,14 +37,14 @@ wdn.solve()
 # Convert the file using a custom function, based on:
 # https://github.com/BME-SmartLab/GraphConvWat 
 # G: Graph in nx format; pos: node position; head: hydraulic heads which not used in this project
-G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
+G , pos , head = get_nx_graph(wdn, weight_mode = edge_weight, get_head=True)
 
 #----------------------------------------------------------------#
-# Load the Predictions
+# Load the Predictions - Revise it!
 #----------------------------------------------------------------#
 print('2.Load the Predictions')
 
-predictions = np.load('./evaluation/predictions.npy')
+predictions = np.load('./train_logs/{}_{}/predictions.npy'.format(task_name, edge_weight))
 predictions = predictions.reshape((365, 782))
 
 def out_date_by_day(year, day):
@@ -50,7 +60,7 @@ def out_date_by_day(year, day):
 #----------------------------------------------------------------#
 print('3.Tag Filtering Step 1: Filter by Frequency')
 
-frequency = 14
+# frequency = 14
 
 pipe_list = []
 date_list = []
@@ -98,7 +108,7 @@ def shortest_length_between_pipes(G, pipe1, pipe2):
 #----------------------------------------------------------------#
 print('4.Tag Filtering Step 2: Filter by the Distance between Pipes')
 
-distance = 5
+# distance = 5
 
 ## 方法2: 去除了重复行后，如果pipe1和pipe2在同一天标记为泄漏，且距离<=5，用pipe1代替pipe2形成重复行，再下一单元格继续去除重复行。
 # 从而大大减小同一天预测多个管道泄漏，但这些管道离的都很近的问题
