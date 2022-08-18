@@ -100,8 +100,8 @@ args = parser.parse_args()
 # Revise it!
 # --------------------------
 # edge_weight = 'pipe_length'
-edge_weight = 'inv_pipe_length'
-# edge_weight = 'unweighted'
+# edge_weight = 'inv_pipe_length'
+edge_weight = 'unweighted'
 
 trained_model_name = 'model'
 
@@ -213,9 +213,9 @@ print("AUC:", auc_score, file = f)
 #----------------------------------------------------------------#
 # Save predictions for processing to competition results format
 #----------------------------------------------------------------#
-# np.save('./evaluation/targets.npy', targets)
-# np.save('./evaluation/predictions.npy', prediction)
-# print("targets and predictions have been saved to folder evaluation", file = f)
+np.save('./evaluation/targets.npy', targets)
+np.save('./evaluation/predictions.npy', prediction)
+print("targets and predictions have been saved to folder evaluation", file = f)
 
 f.close()
         
