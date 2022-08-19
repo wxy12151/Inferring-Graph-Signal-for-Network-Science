@@ -49,11 +49,11 @@ class MyDataset(Dataset):
     def _preprocess_features(self, features):
         """Row-normalize feature matrix and convert to tuple representation"""
         features = np.array(features.todense()) # (782, 288)
-        rowsum = np.array(features.sum(1))  # 按行求和 (782,)
-        r_inv = np.power(rowsum, -1).flatten()  # 特征和的倒数 (782,)
+        rowsum = np.array(features.sum(1))  # 按行求和 (782,) 只有33个观测点有值，其他均为0
+        r_inv = np.power(rowsum, -1).flatten()  # 特征和的倒数 (782,) 只有33个观测点有值，其他均为inf
         r_inv[np.isinf(r_inv)] = 0.  # 无穷值赋值为0 (782,)
         r_mat_inv = sp.diags(r_inv)  # 转换成对角矩阵 (782, 782)
-        features = r_mat_inv.dot(features)  # 特征归一化,就是每个点的782维特征和为1
+        features = r_mat_inv.dot(features)  # 特征归一化,就是每782个点每个点的288维特征和为1; 当然，非观测点的288个特征值依旧都为0
         return features
 
     def construct_degs(self):

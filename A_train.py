@@ -91,9 +91,12 @@ device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 # --------------------------
 # Revise it!
 # --------------------------
+# edge_weight = 'unweighted'
+edge_weight = 'hydraulic_loss'
+# edge_weight = 'log_hydraulic_loss'
+# edge_weight = 'pruned'
 # edge_weight = 'pipe_length'
 # edge_weight = 'inv_pipe_length'
-edge_weight = 'unweighted'
 
 # --------------------------
 # load graphs and labels
