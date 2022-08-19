@@ -68,12 +68,12 @@ from utils_pre.metrics import Metrics
 # --------------------------
 # Customize Choice
 # --------------------------
-year = 2019 
-# year = 2019
+# year = 2018
+year = 2019
 # edge_weight = 'unweighted'
-edge_weight = 'hydraulic_loss'
+# edge_weight = 'hydraulic_loss'
 # edge_weight = 'log_hydraulic_loss'
-# edge_weight = 'pruned'
+edge_weight = 'pruned'
 # edge_weight = 'pipe_length'
 # edge_weight = 'inv_pipe_length'
 
