@@ -30,7 +30,7 @@ parser.add_argument('--time_steps', type=int, nargs='?', default=365,
                     help="total time steps used for train, eval and test")
 parser.add_argument('--GPU_ID', type=int, nargs='?', default=0,
                     help='GPU_ID (0/1 etc.)')
-parser.add_argument('--epochs', type=int, nargs='?', default=2000,
+parser.add_argument('--epochs', type=int, nargs='?', default=300,
                     help='# epochs')
 # parser.add_argument('--val_freq', type=int, nargs='?', default=1,
 #                     help='Validation frequency (in epochs)')
@@ -58,7 +58,7 @@ parser.add_argument('--residual', type=bool, nargs='?', default=True,
 # # Weight for negative samples in the binary cross-entropy loss function.
 # parser.add_argument('--neg_weight', type=float, nargs='?', default=1.0,
 #                     help='Weightage for negative samples')
-parser.add_argument('--learning_rate', type=float, nargs='?', default=0.001, # default = 0.01
+parser.add_argument('--learning_rate', type=float, nargs='?', default=0.0001, # default = 0.01
                     help='Initial learning rate for self-attention model.')
 parser.add_argument('--spatial_drop', type=float, nargs='?', default=0.1,
                     help='Spatial (structural) attention Dropout (1 - keep probability).')
@@ -72,13 +72,13 @@ parser.add_argument('--leakage_weight', type=float, nargs='?', default=100,
 # --------------------------
 # Architecture params
 # --------------------------
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
-parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16,16,16', # default = 16
+parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8', # default = 16
                     help='Encoder layer config: # attention heads in each Temporal layer')
-parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='128,128,128', # default = 128
+parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='64,64,64,64,64', # default = 128
                     help='Encoder layer config: # units in each Temporal layer')
 parser.add_argument('--position_ffn', type=str, nargs='?', default='True',
                     help='Position wise feedforward')
@@ -88,13 +88,34 @@ args = parser.parse_args()
 # print(args)
 
 # --------------------------
+# Revise it!
+# --------------------------
+
+### edge_weight for every graph in 365 days
+# edge_weight = 'unweighted'
+# edge_weight = 'hydraulic_loss'
+# edge_weight = 'log_hydraulic_loss'
+# edge_weight = 'pruned'
+edge_weight = 'pipe_length'
+# edge_weight = 'inv_pipe_length'
+
+### label file direction
+label_dir = './data/2018_Leakages.csv'
+
+### test logs file direction
+test_logs_dir = './train_logs/reconst_{}/test_logs_with_reconst.txt'.format(edge_weight)
+
+### tensorboard dir
+tensor_dir = './train_logs/reconst_{}/logs_with_reconst'.format(edge_weight)
+
+# --------------------------
 # Activate GPU and cuda
 # --------------------------
 torch.cuda.set_device(args.GPU_ID)
 device = torch.device('cuda' if torch.cuda.is_available()  else 'cpu')
 
 # --------------------------
-# load graphs - Revise it!
+# load graphs
 # --------------------------
 
 # Runtime configuration
@@ -110,7 +131,7 @@ wdn.solve()
 
 # Convert the file using a custom function, based on:
 # https://github.com/BME-SmartLab/GraphConvWat 
-G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
+G , pos , head = get_nx_graph(wdn, weight_mode = edge_weight, get_head=True)
 
 # Instantiate the nominal WDN model
 nominal_wdn_model = epanetSimulator(path_to_wdn, path_to_data)
@@ -169,10 +190,9 @@ for i in range((end_year - begin_year + 1)*365): # range(365)
 adjs = [nx.adjacency_matrix(g) for g in graphs]
 
 # --------------------------
-# load labels - Revise it!
+# load labels
 # --------------------------
 
-label_dir = './data/2018_Leakages.csv'
 df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
 # --------------------------
@@ -220,12 +240,12 @@ opt = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=
 # --------------------------
 # Add tensorboard
 # --------------------------
-writer = SummaryWriter("logs_with_reconst")
+writer = SummaryWriter(tensor_dir)
 
 # --------------------------
 # Print to txt file locally
 # --------------------------
-file_path = './test_logs_with_reconst.txt'
+file_path = test_logs_dir
 f=open(file_path, 'a')
 print('*'*80, file = f)
 print('learning rate:', args.learning_rate, file = f)
@@ -241,8 +261,8 @@ f.close()
 # Training Start
 # --------------------------
 start_time = time.time()
-best_epoch_loss = 50000
-every_n_epoch = 100
+best_epoch_loss = float('inf')
+every_n_epoch = 50
 epoch_loss = []
 epoch_save = 0
 os.environ['MKL_THREADING_LAYER'] = 'GNU'
@@ -269,12 +289,12 @@ for epoch in range(args.epochs):
     if epoch_loss[-1] < best_epoch_loss:
         best_epoch_loss = epoch_loss[-1]
         epoch_save = epoch + 1
-        torch.save(model.state_dict(), "./model_checkpoints/model.pt")
+        torch.save(model.state_dict(), "./model_checkpoints/model_reconst_{}.pt".format(edge_weight))
         print("Update local model on epoch {} with loss {}.".format(epoch_save, best_epoch_loss))
     
     # Test the saved model every n epochs
     if (epoch+1) % every_n_epoch == 0:
-        file_path = './test_logs_with_reconst.txt'
+        file_path = test_logs_dir
         f=open(file_path, 'a')
         print('\n', file = f)
         print('-'*50, file = f)
@@ -286,7 +306,7 @@ for epoch in range(args.epochs):
 
     start_time = time.time()
     
-file_path = './test_logs_with_reconst.txt'
+file_path = test_logs_dir
 f=open(file_path, 'a')
 print("Finally, the model saved locally is epoch {} with loss {}.".format(epoch_save, epoch_loss[epoch_save-1]), file = f)
 f.close()

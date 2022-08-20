@@ -32,7 +32,20 @@ from models.model import DySAT
 # --------------------------
 # Print to txt file locally
 # --------------------------
-file_path = './test_logs_with_reconst.txt'
+
+### graph edge weight modes
+# edge_weight = 'unweighted'
+# edge_weight = 'hydraulic_loss'
+# edge_weight = 'log_hydraulic_loss'
+# edge_weight = 'pruned'
+edge_weight = 'pipe_length'
+# edge_weight = 'inv_pipe_length'
+
+### test dataset label dir
+label_dir = './data/2019_Leakages.csv'
+
+### test logs file dir
+file_path = './train_logs/reconst_{}/test_logs_with_reconst.txt'.format(edge_weight)
 f=open(file_path, 'a')
 print('-'*50, file = f)
 
@@ -80,19 +93,19 @@ parser.add_argument('--temporal_drop', type=float, nargs='?', default=0.5,
                     help='Temporal attention Dropout (1 - keep probability).')
 parser.add_argument('--weight_decay', type=float, nargs='?', default=0.0005,
                     help='Initial learning rate for self-attention model.')
-parser.add_argument('--leakage_weight', type=float, nargs='?', default=55,
+parser.add_argument('--leakage_weight', type=float, nargs='?', default=100,
                     help='Give leakage labels more weight when getting loss since the biased lables.')
 
 # --------------------------
 # Architecture params
 # --------------------------
-parser.add_argument('--structural_head_config', type=str, nargs='?', default='16', # 16,16,8,8,8,8,4,4,4,4,4
+parser.add_argument('--structural_head_config', type=str, nargs='?', default='16,16,8', # 16,16,8,8,8,8,4,4,4,4,4
                     help='Encoder layer config: # attention heads in each GAT layer')
-parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128', # 128,128,64,64,64,64,32,32,32,32,32
+parser.add_argument('--structural_layer_config', type=str, nargs='?', default='128,128,64', # 128,128,64,64,64,64,32,32,32,32,32
                     help='Encoder layer config: # units in each GAT layer')
-parser.add_argument('--temporal_head_config', type=str, nargs='?', default='16,16,16', # default = 16
+parser.add_argument('--temporal_head_config', type=str, nargs='?', default='8,8,8,8,8', # default = 16
                     help='Encoder layer config: # attention heads in each Temporal layer')
-parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='128,128,128', # default = 128
+parser.add_argument('--temporal_layer_config', type=str, nargs='?', default='64,64,64,64,64', # default = 128
                     help='Encoder layer config: # units in each Temporal layer')
 parser.add_argument('--position_ffn', type=str, nargs='?', default='True',
                     help='Position wise feedforward')
@@ -102,7 +115,7 @@ args = parser.parse_args()
 # print(args)
 
 # --------------------------
-# load graphs - Revise it!
+# load graphs
 # --------------------------
 
 # Runtime configuration
@@ -118,7 +131,7 @@ wdn.solve()
 
 # Convert the file using a custom function, based on:
 # https://github.com/BME-SmartLab/GraphConvWat 
-G , pos , head = get_nx_graph(wdn, weight_mode='pipe_length', get_head=True)
+G , pos , head = get_nx_graph(wdn, weight_mode = edge_weight, get_head=True)
 
 # Instantiate the nominal WDN model
 nominal_wdn_model = epanetSimulator(path_to_wdn, path_to_data)
@@ -177,10 +190,9 @@ for i in range((end_year - begin_year + 1)*365): # range(365)
 adjs = [nx.adjacency_matrix(g) for g in graphs]
 
 # --------------------------
-# load labels - Revise it!
+# load labels
 # --------------------------
 
-label_dir = './data/2019_Leakages.csv'
 df_label = load_label(label_dir) # 2018 leakage pipes dataset; 105120(365x288) rows × 14(leakages) columns
 
 feats = []
@@ -217,9 +229,9 @@ dataloader = DataLoader(dataset,  # 定义dataloader # batch_size是512>=365,所
 model = DySAT(args, feats[0].shape[1], args.time_steps).to(device)
 
 #----------------------------------------------------------------#
-# Import Trained Model's Parameters - Revise it!
+# Import Trained Model's Parameters
 #----------------------------------------------------------------#
-model.load_state_dict(torch.load("./model_checkpoints/model.pt"))
+model.load_state_dict(torch.load("./model_checkpoints/model_reconst_{}.pt".format(edge_weight)))
 
 #----------------------------------------------------------------#
 # The testing step begins
@@ -243,6 +255,10 @@ with torch.no_grad():
         
 print('The shape of the node scores: {}'.format(y_score_node.shape)) # torch.Size([285430, 2]) 365x782
 print('The shape of the node labels: {}'.format(targets.shape)) # torch.Size([285430])
+
+#----------------------------------------------------------------#
+# Statistical Metrics
+#----------------------------------------------------------------#
     
 _, prediction = torch.max(F.softmax(y_score_node, dim = 1), 1)
 
@@ -260,9 +276,35 @@ print('recall of 1:{}'.format(recall_score(targets, prediction, pos_label = 1)),
 print("Confusion Matrix: ", '\n', confusion_matrix(targets, prediction), file = f)
 print("Classification report: ", '\n', classification_report(targets, prediction), file = f)
 
-np.save('./evaluation/targets.npy', targets)
-np.save('./evaluation/predictions.npy', prediction)
-print("targets and predictions have been saved to folder evaluation", file = f)
+#----------------------------------------------------------------#
+# ROC
+#----------------------------------------------------------------#
+scores_ = F.softmax(y_score_node, dim = 1).cpu().numpy() # 285430 x 2: 2代表0和1类别的概率
+
+# fpr, tpr, thresholds = roc_curve(targets, scores_[:, 1], pos_label=1) # positive label = 1
+# auc_ = auc(fpr, tpr)
+# plt.figure()
+# lw = 2
+# plt.plot(fpr, tpr, color='darkorange',
+#          lw=lw, label='ROC curve (area = %0.2f)' % auc_)
+# plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+# plt.xlim([0.0, 1.0])
+# plt.ylim([0.0, 1.05])
+# plt.xlabel('False Positive Rate')
+# plt.ylabel('True Positive Rate')
+# plt.title('Receiver operating characteristic of ')
+# plt.legend(loc="lower right")
+# plt.savefig('./figure/ROC/roc_baseline_pipelength.png')
+# plt.show()
+
+auc_score =  roc_auc_score(targets, scores_[:, 1])
+print("AUC:", auc_score, file = f)
+
+#----------------------------------------------------------------#
+# Save predictions for processing to competition results format
+#----------------------------------------------------------------#
+np.save('./train_logs/reconst_{}/predictions.npy'.format(edge_weight), prediction)
+print("predictions have been saved to folder evaluation", file = f)
 
 f.close()
         
