@@ -78,7 +78,7 @@ class DySAT(nn.Module):
         temporal_out = self.temporal_attn(structural_outputs_padded)
         # [782 365 64] 782个节点在每一个时间步骤里所对应的节点embedding（经过temp atten 操作后）
 
-        # Fully connected layer
+        # Fully connected layer # 我感觉仅仅一个全连接层让365x782个点共享是否参数有点少了
         y_score = []
         for t in range(0, self.num_time_steps): # 遍历每一个时间步的图，全连接输出2维分类
             y_score.append(self.fc(temporal_out[:, t, :])) # list 365 torch.size([782, 2])

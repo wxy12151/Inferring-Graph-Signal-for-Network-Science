@@ -58,7 +58,7 @@ parser.add_argument('--residual', type=bool, nargs='?', default=True,
 # # Weight for negative samples in the binary cross-entropy loss function.
 # parser.add_argument('--neg_weight', type=float, nargs='?', default=1.0,
 #                     help='Weightage for negative samples')
-parser.add_argument('--learning_rate', type=float, nargs='?', default=0.0001, # default = 0.01
+parser.add_argument('--learning_rate', type=float, nargs='?', default=0.001, # default = 0.01
                     help='Initial learning rate for self-attention model.')
 parser.add_argument('--spatial_drop', type=float, nargs='?', default=0.1,
                     help='Spatial (structural) attention Dropout (1 - keep probability).')
@@ -93,10 +93,10 @@ args = parser.parse_args()
 
 ### edge_weight for every graph in 365 days
 # edge_weight = 'unweighted'
-# edge_weight = 'hydraulic_loss'
+edge_weight = 'hydraulic_loss'
 # edge_weight = 'log_hydraulic_loss'
 # edge_weight = 'pruned'
-edge_weight = 'pipe_length'
+# edge_weight = 'pipe_length'
 # edge_weight = 'inv_pipe_length'
 
 ### label file direction

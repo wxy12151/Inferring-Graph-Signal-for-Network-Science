@@ -35,10 +35,10 @@ from models.model import DySAT
 
 ### graph edge weight modes
 # edge_weight = 'unweighted'
-# edge_weight = 'hydraulic_loss'
+edge_weight = 'hydraulic_loss'
 # edge_weight = 'log_hydraulic_loss'
 # edge_weight = 'pruned'
-edge_weight = 'pipe_length'
+# edge_weight = 'pipe_length'
 # edge_weight = 'inv_pipe_length'
 
 ### test dataset label dir
