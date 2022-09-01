@@ -18,7 +18,7 @@ from utils_pre.epanet_loader import get_nx_graph
 task_name = 'baseline'
 edge_weight = 'pipe_length'
 
-frequency = 5
+frequency = 10
 distance = 5
 
 #----------------------------------------------------------------#
@@ -56,7 +56,7 @@ def out_date_by_day(year, day):
     return datetime.strftime(first_day+add_day,"%Y-%m-%d")
 
 #----------------------------------------------------------------#
-# Tag Filtering Step 1: Filter by Frequency
+# Tag Filtering Step 1: Filter by Frequency(>=)
 #----------------------------------------------------------------#
 print('3.Tag Filtering Step 1: Filter by Frequency')
 
@@ -104,7 +104,7 @@ def shortest_length_between_pipes(G, pipe1, pipe2):
     return length
 
 #----------------------------------------------------------------#
-# Tag Filtering Step 2: Filter by the Distance between Pipes
+# Tag Filtering Step 2: Filter by the Distance between Pipes (<=)
 #----------------------------------------------------------------#
 print('4.Tag Filtering Step 2: Filter by the Distance between Pipes')
 
@@ -131,8 +131,8 @@ results_2 = results_2.drop_duplicates(ignore_index = True)
 #----------------------------------------------------------------#
 # Save to results_data.txt
 #----------------------------------------------------------------#
-print('5.Save to results_data.txt')
-file_path = './results_data.txt'
+file_path = './train_logs/{}_{}/results/result_f_{}_distance_{}.txt'.format(task_name, edge_weight, frequency, distance)
+print('5.Save to {}.txt'.format(file_path))
 f=open(file_path, 'a')
 print('# linkID, startTime, endTime, leakDiameter (m), leakType, peakTime', file = f)
 for i in range(results_2.shape[0]):
