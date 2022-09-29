@@ -16,10 +16,12 @@ from utils_pre.epanet_loader import get_nx_graph
 # Revise it!
 #----------------------------------------------------------------#
 task_name = 'baseline'
-edge_weight = 'pipe_length'
+# edge_weight = 'pipe_length'
+edge_weight = 'inv_pipe_length'
+# edge_weight = 'hydraulic_loss'
 
-frequency = 10
-distance = 5
+frequency = 1
+distance = 8
 
 #----------------------------------------------------------------#
 # import the Grpah of WDN
